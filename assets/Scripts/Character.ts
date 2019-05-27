@@ -19,6 +19,9 @@ export default class Character extends cc.Component {
     @property(cc.RigidBody)
     rigidBody: cc.RigidBody = null;
 
+    @property
+    cameraName: string = 'mainCamera';
+
     /**
      current weapon node
      Used to draw weapon in world
@@ -41,10 +44,16 @@ export default class Character extends cc.Component {
 
     //Audio: cc.AudioClip = null;
 
+    //movement
+
+    movingLeft: boolean = false;
+
+    movingRight: boolean = false;
 
 
     // LIFE-CYCLE CALLBACKS:
 
+    
 
     onLoad() {
         if (cc.director.getPhysicsManager().enabled != true) { cc.director.getPhysicsManager().enabled = true; }
@@ -68,19 +77,30 @@ export default class Character extends cc.Component {
         this.rigidBody.applyLinearImpulse(cc.v2(0, 2000), cc.v2(this.node.getPosition().x + 10, this.node.getPosition().y + 78), true);
     }
 
+    onKeyUp(_event: cc.Event.EventKeyboard) {
+        if (_event.keyCode == cc.macro.KEY.a) {
+            this.rigidBody.linearVelocity.x = 0;
+            this.movingLeft = false;       
+        }
+
+        else if (_event.keyCode == cc.macro.KEY.d) {   
+            this.rigidBody.linearVelocity.x = 0;
+            this.movingRight = false;
+        }
+    }
     onKeyDown(_event: cc.Event.EventKeyboard) {
         if (_event.keyCode == cc.macro.KEY.w) {
             if (this.isOnTheGround() == true) { this.jump(); }
             this.jump();
         }
         else if (_event.keyCode == cc.macro.KEY.a) {
-            this.rigidBody.applyLinearImpulse(cc.v2(-500, 0), cc.v2(this.node.getPosition().x, this.node.getPosition().y), true);
+            this.movingLeft = true;
         }
 
         else if (_event.keyCode == cc.macro.KEY.d) {
-            this.rigidBody.applyLinearImpulse(cc.v2(500, 0), cc.v2(this.node.getPosition().x, this.node.getPosition().y), true);
-
+            this.movingRight = true;
         }
+
         else if (_event.keyCode == cc.macro.KEY.e) {
             for (var i = 0; i < this.collidingNodes.length; i++)
             {
@@ -144,6 +164,13 @@ export default class Character extends cc.Component {
                 }
             }
         }
+
+        if (this.movingLeft) {
+            this.rigidBody.applyLinearImpulse(cc.v2(-500, 0), cc.v2(this.node.getPosition().x, this.node.getPosition().y), true);
+        }
+        if (this.movingRight) {
+            this.rigidBody.applyLinearImpulse(cc.v2(500, 0), cc.v2(this.node.getPosition().x, this.node.getPosition().y), true);
+        }
         
     }
 
@@ -182,7 +209,6 @@ export default class Character extends cc.Component {
             // otherCollider.node.destroy();
         }
         else if (otherCollider.node.getComponent(UsableObject) != null) {
-            cc.log(otherCollider.node.name);
             this.collidingNodes.push(otherCollider.node);
         }
     }
@@ -190,11 +216,9 @@ export default class Character extends cc.Component {
     // will be called once when the contact between two colliders just about to end.
     onEndContact(contact, selfCollider, otherCollider) {
         if (otherCollider.node.getComponent(UsableObject) != null) {
-            //const id = this.collidingNodes.findIndex(otherCollider.node);
 
             for (var i: number = 0; i < this.collidingNodes.length; i++) {
                 if (this.collidingNodes[i] == otherCollider.node) {
-                        cc.log("ActoifffA");
                         this.collidingNodes.splice(i, 1);
                    
                 }
@@ -212,8 +236,11 @@ export default class Character extends cc.Component {
 
     start() {
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
-
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
     }
 
-    // update (dt) {}
+    update(dt) {
+        cc.director.getScene().getChildByName(this.cameraName).setPosition(this.node.getPosition());
+        
+    }
 }
