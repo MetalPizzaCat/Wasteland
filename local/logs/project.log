@@ -1,0 +1,213 @@
+2019-05-27T01:42:13.994Z - normal: Load ~/.CocosCreator/settings.json
+2019-05-27T01:42:15.275Z - normal: Initializing Asset Database
+2019-05-27T01:42:15.300Z - normal: checking language setting...
+2019-05-27T01:42:15.300Z - normal: Language: en
+2019-05-27T01:42:17.721Z - success: preview server running at http://localhost:7456
+2019-05-27T01:42:17.724Z - success: protocol editor-framework registered
+2019-05-27T01:42:17.725Z - success: protocol app registered
+2019-05-27T01:42:17.725Z - success: protocol theme registered
+2019-05-27T01:42:17.725Z - success: protocol packages registered
+2019-05-27T01:42:17.725Z - success: protocol uuid registerred
+2019-05-27T01:42:17.726Z - success: protocol db registerred
+2019-05-27T01:42:17.726Z - success: protocol thumbnail registerred
+2019-05-27T01:42:17.726Z - success: protocol unpack registerred
+2019-05-27T01:42:17.726Z - success: protocol disable-commonjs registerred
+2019-05-27T01:42:18.068Z - normal: connected!
+2019-05-27T01:42:18.070Z - normal: Check project C:\Users\catgu\Documents\waste
+2019-05-27T01:42:18.072Z - normal: Initializing project C:\Users\catgu\Documents\waste
+2019-05-27T01:42:18.973Z - normal: Initializing Cocos2d
+2019-05-27T01:42:20.581Z - normal: Initializing engine extends
+2019-05-27T01:42:20.856Z - success: asset-db-debugger loaded
+2019-05-27T01:42:20.863Z - success: baidu-adapter loaded
+2019-05-27T01:42:20.871Z - success: color-picker loaded
+2019-05-27T01:42:21.115Z - success: fb-audience-network loaded
+2019-05-27T01:42:21.319Z - success: fb-live-stream loaded
+2019-05-27T01:42:21.341Z - success: google-play-instant loaded
+2019-05-27T01:42:21.389Z - success: huawei-runtime loaded
+2019-05-27T01:42:21.391Z - success: jsb-adapter loaded
+2019-05-27T01:42:21.436Z - success: oppo-runtime loaded
+2019-05-27T01:42:21.461Z - success: package-manager loaded
+2019-05-27T01:42:21.877Z - success: qqplay-adapter loaded
+2019-05-27T01:42:21.882Z - success: runtime-dev-tools loaded
+2019-05-27T01:42:21.920Z - success: sdkbox loaded
+2019-05-27T01:42:22.000Z - success: tester loaded
+2019-05-27T01:42:22.068Z - success: ui-grid loaded
+2019-05-27T01:42:22.091Z - success: ui-kit-preview-extra loaded
+2019-05-27T01:42:22.114Z - success: ui-kit-preview loaded
+2019-05-27T01:42:22.120Z - success: ui-kit loaded
+2019-05-27T01:42:22.145Z - success: ui-tree loaded
+2019-05-27T01:42:22.217Z - success: vivo-runtime loaded
+2019-05-27T01:42:22.220Z - success: weapp-adapter loaded
+2019-05-27T01:42:22.308Z - success: assets loaded
+2019-05-27T01:42:22.312Z - success: builder loaded
+2019-05-27T01:42:22.921Z - info: Cocos Services load base data!
+2019-05-27T01:42:22.922Z - success: cocos-services loaded
+2019-05-27T01:42:22.928Z - success: console loaded
+2019-05-27T01:42:22.976Z - success: fb-instant-games loaded
+2019-05-27T01:42:22.982Z - success: game-window loaded
+2019-05-27T01:42:22.984Z - success: google-instant-games loaded
+2019-05-27T01:42:22.991Z - success: hierarchy loaded
+2019-05-27T01:42:22.995Z - success: inspector loaded
+2019-05-27T01:42:22.997Z - success: keystore loaded
+2019-05-27T01:42:23.004Z - success: node-library loaded
+2019-05-27T01:42:23.033Z - success: package-asset loaded
+2019-05-27T01:42:23.036Z - success: preferences loaded
+2019-05-27T01:42:23.039Z - success: project-exporter loaded
+2019-05-27T01:42:23.042Z - success: project-importer loaded
+2019-05-27T01:42:23.045Z - success: project-settings loaded
+2019-05-27T01:42:23.054Z - success: scene loaded
+2019-05-27T01:42:23.057Z - success: simulator-debugger loaded
+2019-05-27T01:42:23.060Z - success: sprite-editor loaded
+2019-05-27T01:42:23.065Z - success: store loaded
+2019-05-27T01:42:23.071Z - success: timeline loaded
+2019-05-27T01:42:26.264Z - normal: Loading packages
+2019-05-27T01:42:26.272Z - normal: Watching packages
+2019-05-27T01:42:27.415Z - normal: Run Application
+2019-05-27T01:46:08.989Z - normal: Simulator: SCREEN DPI = 96, SCREEN SCALE = 1.00
+2019-05-27T01:46:08.991Z - normal: Simulator: WORKAREA WIDTH 1912.00, HEIGHT 989.00
+2019-05-27T01:46:08.992Z - normal: Simulator: FRAME SCALE = 1.00
+2019-05-27T01:46:09.445Z - normal: Simulator: Ready for GLSL
+2019-05-27T01:46:09.447Z - normal: Simulator: Ready for OpenGL 2.0
+2019-05-27T01:46:09.447Z - normal: Simulator: Project Config:
+2019-05-27T01:46:09.447Z - normal: Simulator:     project dir: C:\CocosCreator_2.1.1\resources\cocos2d-x\simulator\win32\
+2019-05-27T01:46:09.448Z - normal: Simulator:     writable path: $(PROJDIR)\
+2019-05-27T01:46:09.448Z - normal: Simulator:     script file: $(PROJDIR)\main.js
+2019-05-27T01:46:09.448Z - normal: Simulator:     frame size: 1080 x 720
+2019-05-27T01:46:09.449Z - normal: Simulator:     frame scale: 1.00
+2019-05-27T01:46:09.449Z - normal: Simulator:     show console: NO
+2019-05-27T01:46:09.449Z - normal: Simulator:     write debug log: NO ()
+2019-05-27T01:46:09.450Z - normal: Simulator:     listen: 
+2019-05-27T01:46:09.450Z - normal: Simulator:     debugger: none
+2019-05-27T01:46:09.451Z - normal: Simulator:     add searching path:
+2019-05-27T01:46:09.451Z - normal: Simulator: 
+2019-05-27T01:46:09.452Z - normal: Simulator: 
+2019-05-27T01:46:09.452Z - normal: Simulator: 
+2019-05-27T01:46:09.452Z - normal: Simulator: resetDesignResolution request
+2019-05-27T01:46:09.453Z - normal: Simulator: ------------------------------------------------
+2019-05-27T01:46:09.453Z - normal: Simulator: LOAD Js FILE: jsb-adapter/jsb-builtin.js
+2019-05-27T01:46:09.453Z - normal: Simulator: ------------------------------------------------
+2019-05-27T01:46:09.454Z - normal: Simulator: D/jswrapper (368): Initializing V8, version: 6.0.286.52
+2019-05-27T01:46:09.851Z - normal: Simulator: D/jswrapper (813): libuv version: 1.13.1
+2019-05-27T01:46:09.854Z - normal: Simulator: D/jswrapper (112): Debugger listening..., visit [ chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=0.0.0.0:5086/00010002-0003-4004-8005-000600070008 ] in chrome browser to debug!
+2019-05-27T01:46:09.854Z - normal: Simulator: D/jswrapper (115): For help see https://nodejs.org/en/docs/inspector
+2019-05-27T01:46:09.967Z - normal: Simulator: D/jswrapper (129): JS: Enable batch GL commands optimization!
+2019-05-27T01:46:09.970Z - normal: Simulator: resetDesignResolution request
+2019-05-27T01:46:09.970Z - normal: Simulator: ------------------------------------------------
+2019-05-27T01:46:09.970Z - normal: Simulator: LOAD Js FILE: main.js
+2019-05-27T01:46:09.970Z - normal: Simulator: ------------------------------------------------
+2019-05-27T01:46:10.430Z - normal: Simulator: D/jswrapper (129): JS: No need to specify the "type" of "cc.EditBox._N$fontColor" because cc.Color is a child class of ValueType. Just set the default value to 'new cc.Color()' and it will be handled properly. cc.EditBox _N$fontColor cc.Color
+2019-05-27T01:46:10.448Z - normal: Simulator: D/jswrapper (129): JS: No need to specify the "type" of "cc.EditBox._N$placeholderFontColor" because cc.Color is a child class of ValueType. Just set the default value to 'new cc.Color()' and it will be handled properly. cc.EditBox _N$placeholderFontColor cc.Color
+2019-05-27T01:46:10.631Z - normal: Simulator: iShow!
+2019-05-27T01:46:10.658Z - normal: Simulator: D/jswrapper (4159): glGetIntegerv: pname: 0x8b4c
+2019-05-27T01:46:10.702Z - normal: Simulator: D/jswrapper (129): JS: [WARN]: Failed to define shader 061403a4fee41e99c7fbd0d70d603c430d3f85dbed5674580d6326e7: already exists.
+2019-05-27T01:46:10.747Z - normal: Simulator: D/jswrapper (129): JS: Cocos Creator v2.1.1
+2019-05-27T01:46:15.069Z - normal: Simulator: D/jswrapper (129): JS: dev_green_64x64
+2019-05-27T01:46:16.442Z - error: Simulator: E/jswrapper (271): ERROR: Uncaught TypeError: #<cc_Node> is not a function, location: assets/Scripts/Character.js:0:0
+STACK:
+[0]Character.onEndContact@assets/Scripts/Character.js:170
+[1]173.PhysicsContact.emit@src/cocos2d-jsb.js:27270
+[2]_onEndContact@src/cocos2d-jsb.js:27584
+[3]195.PhysicsContactListener.EndContact@src/cocos2d-jsb.js:29439
+[4]401.b2Contact.Update@src/cocos2d-jsb.js:70228
+[5]401.b2ContactManager.Collide@src/cocos2d-jsb.js:70655
+[6]401.b2World.Step@src/cocos2d-jsb.js:75182
+[7]update@src/cocos2d-jsb.js:27398
+[8]update@src/cocos2d-jsb.js:11657
+[9]mainLoop@src/cocos2d-jsb.js:9464
+[10]callback@src/cocos2d-jsb.js:9701
+[11]tick@jsb-adapter/jsb-builtin.js:2001
+E/jswrapper (534): [ERROR] (..\cocos\scripting\js-bindings\jswrapper\v8\Object.cpp, 534): Invoking function (094D02D0) failed!
+    at HTMLElement.print-simulator-log (C:\CocosCreator_2.1.1\resources\app.asar\editor\builtin\scene\panel\messages\scene.js:1:1669)
+    at Object.e._dispatch (C:\CocosCreator_2.1.1\resources\app.asar\editor-framework\lib\renderer\panel.js:1:1941)
+    at EventEmitter.o.on.s (C:\CocosCreator_2.1.1\resources\app.asar\editor-framework\lib\renderer\ipc.js:1:2921)
+    at emitMany (events.js:127:13)
+    at EventEmitter.emit (events.js:204:7)
+2019-05-27T01:46:17.410Z - normal: Simulator: D/jswrapper (418): Debugger attached.
+2019-05-27T01:46:33.752Z - normal: Simulator: D/jswrapper (452): ScriptEngine::cleanup begin ...
+2019-05-27T01:46:33.753Z - normal: Simulator: D/jswrapper (593): GC begin ..., (js->native map) size: 61, all objects: 140
+2019-05-27T01:46:33.839Z - normal: Simulator: D/jswrapper (601): GC end ..., (js->native map) size: 61, all objects: 140
+2019-05-27T01:46:33.839Z - normal: Simulator: D/jswrapper (593): GC begin ..., (js->native map) size: 61, all objects: 140
+2019-05-27T01:46:33.911Z - normal: Simulator: D/jswrapper (601): GC end ..., (js->native map) size: 61, all objects: 140
+2019-05-27T01:46:33.932Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (4) by GC
+2019-05-27T01:46:33.932Z - normal: Simulator: D/jswrapper (308): Destroy WebGLFramebuffer (2) by GC
+2019-05-27T01:46:33.933Z - normal: Simulator: D/jswrapper (308): Destroy WebGLFramebuffer (1) by GC
+2019-05-27T01:46:33.934Z - normal: Simulator: D/jswrapper (251): Destroy WebGLTexture (9) by GC
+2019-05-27T01:46:33.935Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (1) by GC
+2019-05-27T01:46:33.935Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (2) by GC
+2019-05-27T01:46:33.935Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (3) by GC
+2019-05-27T01:46:33.936Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (6) by GC
+2019-05-27T01:46:33.936Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (5) by GC
+2019-05-27T01:46:33.937Z - normal: Simulator: D/jswrapper (289): Destroy WebGLRenderbuffer (1) by GC
+2019-05-27T01:46:33.937Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (7) by GC
+2019-05-27T01:46:33.938Z - normal: Simulator: D/jswrapper (327): Destroy WebGLProgram (15) by GC
+2019-05-27T01:46:33.938Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (8) by GC
+2019-05-27T01:46:33.938Z - normal: Simulator: D/jswrapper (251): Destroy WebGLTexture (1) by GC
+2019-05-27T01:46:33.938Z - normal: Simulator: D/jswrapper (251): Destroy WebGLTexture (3) by GC
+2019-05-27T01:46:33.939Z - normal: Simulator: D/jswrapper (251): Destroy WebGLTexture (2) by GC
+2019-05-27T01:46:33.940Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (9) by GC
+2019-05-27T01:46:33.940Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (10) by GC
+2019-05-27T01:46:33.941Z - normal: Simulator: D/jswrapper (251): Destroy WebGLTexture (7) by GC
+2019-05-27T01:46:33.941Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (11) by GC
+2019-05-27T01:46:33.943Z - normal: Simulator: D/jswrapper (327): Destroy WebGLProgram (12) by GC
+2019-05-27T01:46:33.943Z - normal: Simulator: D/jswrapper (251): Destroy WebGLTexture (4) by GC
+2019-05-27T01:46:33.943Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (12) by GC
+2019-05-27T01:46:33.944Z - normal: Simulator: D/jswrapper (251): Destroy WebGLTexture (5) by GC
+2019-05-27T01:46:33.944Z - normal: Simulator: D/jswrapper (327): Destroy WebGLProgram (9) by GC
+2019-05-27T01:46:33.944Z - normal: Simulator: D/jswrapper (251): Destroy WebGLTexture (6) by GC
+2019-05-27T01:46:33.944Z - normal: Simulator: D/jswrapper (251): Destroy WebGLTexture (8) by GC
+2019-05-27T01:46:33.944Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (13) by GC
+2019-05-27T01:46:33.945Z - normal: Simulator: D/jswrapper (251): Destroy WebGLTexture (10) by GC
+2019-05-27T01:46:33.945Z - normal: Simulator: D/jswrapper (270): Destroy WebGLBuffer (14) by GC
+2019-05-27T01:46:33.945Z - normal: Simulator: D/jswrapper (251): Destroy WebGLTexture (11) by GC
+2019-05-27T01:46:33.946Z - normal: Simulator: D/jswrapper (251): Destroy WebGLTexture (12) by GC
+2019-05-27T01:46:33.946Z - normal: Simulator: D/jswrapper (289): Destroy WebGLRenderbuffer (2) by GC
+2019-05-27T01:46:33.949Z - normal: Simulator: D/jswrapper (327): Destroy WebGLProgram (6) by GC
+2019-05-27T01:46:33.950Z - normal: Simulator: D/jswrapper (327): Destroy WebGLProgram (3) by GC
+2019-05-27T01:46:33.950Z - normal: Simulator: D/jswrapper (327): Destroy WebGLProgram (18) by GC
+2019-05-27T01:46:33.950Z - normal: Simulator: D/jswrapper (593): GC begin ..., (js->native map) size: 0, all objects: 0
+2019-05-27T01:46:34.034Z - normal: Simulator: D/jswrapper (601): GC end ..., (js->native map) size: 0, all objects: 0
+2019-05-27T01:46:34.035Z - normal: Simulator: D/jswrapper (493): Starting to cleanup dragonbones object, count: 61
+2019-05-27T01:46:34.047Z - normal: Simulator: D/jswrapper (509): After cleanup, dragonbones object remained count: 0
+2019-05-27T01:46:34.048Z - normal: Simulator: D/jswrapper (515): ScriptEngine::cleanup end ...
+2019-05-27T01:57:53.734Z - normal: Simulator: SCREEN DPI = 96, SCREEN SCALE = 1.00
+2019-05-27T01:57:53.739Z - normal: Simulator: WORKAREA WIDTH 1912.00, HEIGHT 989.00
+2019-05-27T01:57:53.739Z - normal: Simulator: FRAME SCALE = 1.00
+2019-05-27T01:57:54.397Z - normal: Simulator: Ready for GLSL
+2019-05-27T01:57:54.397Z - normal: Simulator: Ready for OpenGL 2.0
+2019-05-27T01:57:54.397Z - normal: Simulator: Project Config:
+2019-05-27T01:57:54.397Z - normal: Simulator:     project dir: C:\CocosCreator_2.1.1\resources\cocos2d-x\simulator\win32\
+2019-05-27T01:57:54.397Z - normal: Simulator:     writable path: $(PROJDIR)\
+2019-05-27T01:57:54.398Z - normal: Simulator:     script file: $(PROJDIR)\main.js
+2019-05-27T01:57:54.398Z - normal: Simulator:     frame size: 1080 x 720
+2019-05-27T01:57:54.399Z - normal: Simulator:     frame scale: 1.00
+2019-05-27T01:57:54.399Z - normal: Simulator:     show console: NO
+2019-05-27T01:57:54.399Z - normal: Simulator:     write debug log: NO ()
+2019-05-27T01:57:54.399Z - normal: Simulator:     listen: 
+2019-05-27T01:57:54.400Z - normal: Simulator:     debugger: none
+2019-05-27T01:57:54.400Z - normal: Simulator:     add searching path:
+2019-05-27T01:57:54.400Z - normal: Simulator: 
+2019-05-27T01:57:54.400Z - normal: Simulator: 
+2019-05-27T01:57:54.401Z - normal: Simulator: 
+2019-05-27T01:57:54.401Z - normal: Simulator: resetDesignResolution request
+2019-05-27T01:57:54.401Z - normal: Simulator: ------------------------------------------------
+2019-05-27T01:57:54.402Z - normal: Simulator: LOAD Js FILE: jsb-adapter/jsb-builtin.js
+2019-05-27T01:57:54.402Z - normal: Simulator: ------------------------------------------------
+2019-05-27T01:57:54.403Z - normal: Simulator: D/jswrapper (368): Initializing V8, version: 6.0.286.52
+2019-05-27T01:57:54.833Z - normal: Simulator: D/jswrapper (813): libuv version: 1.13.1
+2019-05-27T01:57:54.837Z - normal: Simulator: D/jswrapper (112): Debugger listening..., visit [ chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=0.0.0.0:5086/00010002-0003-4004-8005-000600070008 ] in chrome browser to debug!
+2019-05-27T01:57:54.838Z - normal: Simulator: D/jswrapper (115): For help see https://nodejs.org/en/docs/inspector
+2019-05-27T01:57:54.914Z - normal: Simulator: D/jswrapper (129): JS: Enable batch GL commands optimization!
+2019-05-27T01:57:54.917Z - normal: Simulator: resetDesignResolution request
+2019-05-27T01:57:54.917Z - normal: Simulator: ------------------------------------------------
+2019-05-27T01:57:54.918Z - normal: Simulator: LOAD Js FILE: main.js
+2019-05-27T01:57:54.918Z - normal: Simulator: ------------------------------------------------
+2019-05-27T01:57:55.434Z - normal: Simulator: D/jswrapper (129): JS: No need to specify the "type" of "cc.EditBox._N$fontColor" because cc.Color is a child class of ValueType. Just set the default value to 'new cc.Color()' and it will be handled properly. cc.EditBox _N$fontColor cc.Color
+2019-05-27T01:57:55.453Z - normal: Simulator: D/jswrapper (129): JS: No need to specify the "type" of "cc.EditBox._N$placeholderFontColor" because cc.Color is a child class of ValueType. Just set the default value to 'new cc.Color()' and it will be handled properly. cc.EditBox _N$placeholderFontColor cc.Color
+2019-05-27T01:57:55.622Z - normal: Simulator: iShow!
+2019-05-27T01:57:55.645Z - normal: Simulator: D/jswrapper (4159): glGetIntegerv: pname: 0x8b4c
+2019-05-27T01:57:55.698Z - normal: Simulator: D/jswrapper (129): JS: [WARN]: Failed to define shader 061403a4fee41e99c7fbd0d70d603c430d3f85dbed5674580d6326e7: already exists.
+2019-05-27T01:57:55.745Z - normal: Simulator: D/jswrapper (129): JS: Cocos Creator v2.1.1
+2019-05-27T01:57:57.968Z - normal: Simulator: D/jswrapper (129): JS: dev_green_64x64
+2019-05-27T01:57:59.422Z - normal: Simulator: D/jswrapper (129): JS: ActoifffA
+2019-05-27T01:58:01.560Z - normal: Simulator: D/jswrapper (418): Debugger attached.
+2019-05-27T01:58:11.061Z - info: shutdown preview server

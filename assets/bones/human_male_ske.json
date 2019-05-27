@@ -1,0 +1,222 @@
+{
+  "frameRate": 24,
+  "name": "human_male",
+  "version": "5.5",
+  "compatibleVersion": "5.5",
+  "armature"
+    : [
+    {
+      "type": "Armature",
+      "frameRate": 24,
+      "name": "Armature",
+      "aabb": {
+        "x": -25.12,
+        "y": -153.94,
+        "width": 61.04,
+        "height": 130.11
+      },
+      "bone": [
+        { "name": "root" },
+        {
+          "length": 4,
+          "name": "spine",
+          "parent": "root",
+          "transform": {
+            "x": 1.4245,
+            "y": -79.8179,
+            "skX": -0.67,
+            "skY": -0.67,
+            "scX": 1.2753,
+            "scY": 1.2753
+          }
+        },
+        {
+          "name": "hand_left",
+          "parent": "spine",
+          "transform": {
+            "x": -67.3789,
+            "y": 24.2627,
+            "skX": -0.2368,
+            "skY": -0.2368
+          }
+        },
+        {
+          "name": "hand_right",
+          "parent": "spine",
+          "transform": {
+            "x": 53.0873,
+            "y": 28.3458,
+            "skX": -0.2368,
+            "skY": -0.2368
+          }
+        },
+        {
+          "name": "neck",
+          "parent": "spine",
+          "transform": {
+            "x": 0.4275,
+            "y": -36.5554
+          }
+        }
+      ],
+      "slot": [
+        {
+          "name": "body1",
+          "parent": "spine"
+        },
+        {
+          "name": "head1",
+          "parent": "neck"
+        },
+        {
+          "name": "face",
+          "parent": "neck"
+        },
+        {
+          "name": "beard",
+          "parent": "neck"
+        }
+      ],
+      "skin": [
+        {
+          "slot": [
+            {
+              "name": "beard",
+              "display": [
+                {
+                  "name": "beard",
+                  "transform": {
+                    "x": -2,
+                    "y": -0.02,
+                    "skX": 0.67,
+                    "skY": 0.67
+                  }
+                }
+              ]
+            },
+            {
+              "name": "body1",
+              "display": [
+                {
+                  "name": "body1",
+                  "transform": {
+                    "x": -0.21,
+                    "y": 17.63,
+                    "skX": 0.2,
+                    "skY": 0.2
+                  }
+                }
+              ]
+            },
+            {
+              "name": "head1",
+              "display": [
+                {
+                  "name": "head",
+                  "transform": {
+                    "skX": 0.67,
+                    "skY": 0.67
+                  }
+                }
+              ]
+            },
+            {
+              "name": "face",
+              "display": [
+                {
+                  "name": "face",
+                  "transform": {
+                    "x": 7.42,
+                    "y": 2.76,
+                    "skX": 0.67,
+                    "skY": 0.67
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "animation": [
+        {
+          "duration": 5,
+          "playTimes": 0,
+          "name": "animtion0",
+          "bone": [
+            {
+              "name": "neck",
+              "translateFrame": [
+                {
+                  "duration": 5,
+                  "tweenEasing": 0,
+                  "x": -0.1,
+                  "y": 8.86
+                },
+                {
+                  "duration": 0,
+                  "x": 16.94,
+                  "y": 9.06
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "duration": 10,
+          "playTimes": 0,
+          "name": "newAnimation",
+          "bone": [
+            {
+              "name": "spine",
+              "translateFrame": [
+                {
+                  "duration": 6,
+                  "tweenEasing": 0,
+                  "x": -26.61,
+                  "y": 1.74
+                },
+                {
+                  "duration": 4,
+                  "tweenEasing": 0,
+                  "x": -26.61,
+                  "y": 68.52
+                },
+                {
+                  "duration": 0,
+                  "x": -26.61,
+                  "y": 1.74
+                }
+              ]
+            },
+            {
+              "name": "neck",
+              "translateFrame": [
+                {
+                  "duration": 10,
+                  "tweenEasing": 0,
+                  "x": 50.31,
+                  "y": 68.4
+                },
+                {
+                  "duration": 0,
+                  "x": 45.4,
+                  "y": 12.81
+                }
+              ],
+              "rotateFrame": [
+                {
+                  "duration": 6,
+                  "tweenEasing": 0
+                },
+                {
+                  "duration": 4,
+                  "rotate": -158.94
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "defaultActions": [ { "gotoAndPlay": "animtion0" } ]
+    }
+  ]}

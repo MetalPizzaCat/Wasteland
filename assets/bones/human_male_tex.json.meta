@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "f59e3fa1-be3a-4b4f-82d0-4bd9f656cde1",
+  "atlasJson": "{\"width\":128,\"height\":128,\"name\":\"human_male\",\"imagePath\":\"human_male_tex.png\",\"SubTexture\":[{\"width\":50,\"y\":1,\"height\":67,\"name\":\"body1\",\"x\":1},{\"width\":50,\"y\":70,\"height\":53,\"name\":\"head\",\"x\":1},{\"y\":1,\"frameY\":-11,\"frameWidth\":50,\"width\":26,\"frameX\":-11,\"frameHeight\":55,\"height\":34,\"name\":\"face\",\"x\":98},{\"y\":1,\"frameY\":-15,\"frameWidth\":48,\"width\":43,\"frameX\":-4,\"frameHeight\":55,\"height\":40,\"name\":\"beard\",\"x\":53}]}",
+  "texture": "4ba536be-6899-4a89-8305-ca0f567eead8",
+  "subMetas": {}
+}
