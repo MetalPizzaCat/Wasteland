@@ -66,10 +66,9 @@ export default class Elevator extends cc.Component {
             this.arrived = false;
             this.moving = true;
             if (this.node.position.fuzzyEquals(this.endLocation, 1)) {
-
+                
                 var vec = this.startLocation.sub(this.node.getPosition()).normalizeSelf();
                 this.rigidBody.linearVelocity = cc.v2(this.speed * vec.x, this.speed * vec.y);
-
                 this.movingBack = true;
 
                 this.startSoundAudioId = cc.audioEngine.play(this.startSound, false, 1);
@@ -91,7 +90,9 @@ export default class Elevator extends cc.Component {
             this.moving = true;
             var vec = this.endLocation.sub(this.node.getPosition()).normalizeSelf();
 
+            
             this.rigidBody.linearVelocity = cc.v2(this.speed * vec.x, this.speed * vec.y);
+           
 
             this.startSoundAudioId = cc.audioEngine.play(this.startSound, false, 1);
             this.moveSoundAudioId = cc.audioEngine.play(this.moveSound, true, 1);

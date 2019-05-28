@@ -45,6 +45,14 @@ export default class Character extends cc.Component {
 
     collidingNodes: [cc.Node] = [null];
 
+    //parent node used to display inventory
+    inventoryNode: cc.Node = null;
+
+    //nodes that are use to display inventory items
+    itemNodes: [cc.Node] = [null];
+
+
+
     //Audio: cc.AudioClip = null;
 
     //movement
@@ -55,12 +63,9 @@ export default class Character extends cc.Component {
 
     useKeyPressed: boolean = false;
 
+
     // LIFE-CYCLE CALLBACKS:
 
-    loadJSON(err,res): void {
-        cc.log('err[' + err + '] result: ' + JSON.stringify(res));
-        cc.log(this.weapons[0].WeaponName);
-    }
 
     onLoad() {
         if (cc.director.getPhysicsManager().enabled != true) { cc.director.getPhysicsManager().enabled = true; }
@@ -78,7 +83,27 @@ export default class Character extends cc.Component {
             }
             this.weaponNode.parent = this.node;
         }
+
+        var url = cc.url.raw('resources/DataTabels/items.json')
+        cc.loader.load(url, function (err, itemArray) {
+
+            cc.log(JSON.stringify(itemArray));
+            for (var i: number = 0; i < Object.keys(itemArray["json"]["items"]).length; i++) {
+                const name = itemArray["json"]["items"][i]["name"];
+                const weight = itemArray["json"]["items"][i]["weight"];
+                var item = new Item();
+                item.itemName = name;
+                item.weight = weight;
+                this.items.push(item);
+            }
+
+        }.bind(this));
+
+        this.inventoryNode = this.node.getChildByName("inventory");
+        
+        
     }
+
     start() {
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
@@ -94,7 +119,7 @@ export default class Character extends cc.Component {
         }
 
     }
-   
+
     jump(): void {
         this.rigidBody.applyLinearImpulse(cc.v2(0, 2000), cc.v2(this.node.getPosition().x + 10, this.node.getPosition().y + 78), true);
     }
@@ -102,20 +127,24 @@ export default class Character extends cc.Component {
     onKeyUp(_event: cc.Event.EventKeyboard) {
         if (_event.keyCode == cc.macro.KEY.a) {
             this.rigidBody.linearVelocity.x = 0;
-            this.movingLeft = false;       
+            this.movingLeft = false;
         }
 
-        else if (_event.keyCode == cc.macro.KEY.d) {   
+        else if (_event.keyCode == cc.macro.KEY.d) {
             this.rigidBody.linearVelocity.x = 0;
             this.movingRight = false;
         }
         else if (_event.keyCode == cc.macro.KEY.e) {
             if (this.useKeyPressed) {
-               
+
                 this.useKeyPressed = false;
             }
 
         }
+        else if (_event.keyCode == cc.macro.KEY.tab) {
+            this.inventoryNode.active = false;
+        }
+       
     }
     onKeyDown(_event: cc.Event.EventKeyboard) {
         if (_event.keyCode == cc.macro.KEY.w) {
@@ -184,8 +213,7 @@ export default class Character extends cc.Component {
             //if (this.node.getComponent(dragonBones.ArmatureDisplay) != null) { this.node.getComponent(dragonBones.ArmatureDisplay).playAnimation("newAnimtion", 10); }
             this.node.position.y = JSON.parse(cc.sys.localStorage['player']).g;
         }
-        else if (_event.keyCode == cc.macro.KEY.l)
-        {
+        else if (_event.keyCode == cc.macro.KEY.l) {
             cc.log(this.items.length);
             for (var i: number = 0; i < this.items.length; i++) {
                 if (this.items[i] != null) {
@@ -209,14 +237,19 @@ export default class Character extends cc.Component {
                 }
             }
         }
-
+        else if (_event.keyCode == cc.macro.KEY.tab) {
+            //first item is always null
+            this.inventoryNode.active = true;
+           
+           
+        }
         if (this.movingLeft) {
             this.rigidBody.applyLinearImpulse(cc.v2(-500, 0), cc.v2(this.node.getPosition().x, this.node.getPosition().y), true);
         }
         if (this.movingRight) {
             this.rigidBody.applyLinearImpulse(cc.v2(500, 0), cc.v2(this.node.getPosition().x, this.node.getPosition().y), true);
         }
-        
+
     }
 
 
@@ -238,7 +271,7 @@ export default class Character extends cc.Component {
         return false;
     }
 
-     // will be called once when two colliders begin to contact
+    // will be called once when two colliders begin to contact
     onBeginContact(contact, selfCollider, otherCollider) {
         if (otherCollider.node.getComponent(Weapon) != null) {
             this.weapons.push(otherCollider.node.getComponent(Weapon));
@@ -270,25 +303,41 @@ export default class Character extends cc.Component {
 
             for (var i: number = 0; i < this.collidingNodes.length; i++) {
                 if (this.collidingNodes[i] == otherCollider.node) {
-                        this.collidingNodes.splice(i, 1);
-                   
+                    this.collidingNodes.splice(i, 1);
+
                 }
             }
         }
     }
 
-     // will be called everytime collider contact should be resolved
+    // will be called everytime collider contact should be resolved
     onPreSolve(contact, selfCollider, otherCollider) {
     }
 
-     // will be called every time collider contact is resolved
+    // will be called every time collider contact is resolved
     onPostSolve(contact, selfCollider, otherCollider) {
     }
 
-   
+
 
     update(dt) {
         cc.director.getScene().getChildByName(this.cameraName).setPosition(this.node.getPosition());
-        
+
+        if (this.items.length - 1 != this.inventoryNode.getComponent(cc.ScrollView).content.childrenCount) {
+            for (var i: number = 1; i < this.items.length; i++) {
+                if (this.items[i] != null) {
+
+                    this.inventoryNode.getComponent(cc.ScrollView).content.addChild(new cc.Node(this.items[i].itemName));
+                    this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).addComponent(cc.Label);
+                    this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Label).horizontalAlign = cc.Label.HorizontalAlign.LEFT;
+                    this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Label).string = this.items[i].itemName;
+                    this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).setPosition(this.inventoryNode.getChildByName("view").getChildByName("content").getChildByName(this.items[i].itemName).getPosition().x, - i * 35);
+
+                }
+                else {
+                    alert("item at " + i + " is null");
+                }
+            }
+        }
     }
 }

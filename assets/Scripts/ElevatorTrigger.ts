@@ -57,6 +57,7 @@ export default class ElevatorTrigger extends UsableObject {
     }
 
     beUsed() {
+        cc.log("i'm used");
         if (cc.director.getScene().getChildByName(this.elevatorName) != null) {
             if (cc.director.getScene().getChildByName(this.elevatorName).getComponent(Elevator) != null) {
                 cc.director.getScene().getChildByName(this.elevatorName).getComponent(Elevator).startMovement();
