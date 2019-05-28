@@ -1,6 +1,7 @@
 import Weapon from "./Weapon";
 import ElevatorTrigger from "./ElevatorTrigger";
 import UsableObject from "./UsableObject";
+import Item from "./Item/Item";
 
 // Learn TypeScript:
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -34,6 +35,8 @@ export default class Character extends cc.Component {
      */
     weapons: [Weapon] = [null];
 
+    items: [Item] = [null];
+
     protected currentWeaponId: number = 1;
     @property({
         type: [cc.AudioClip]
@@ -53,7 +56,10 @@ export default class Character extends cc.Component {
 
     // LIFE-CYCLE CALLBACKS:
 
-    
+    loadJSON(err,res): void {
+        cc.log('err[' + err + '] result: ' + JSON.stringify(res));
+        cc.log(this.weapons[0].WeaponName);
+    }
 
     onLoad() {
         if (cc.director.getPhysicsManager().enabled != true) { cc.director.getPhysicsManager().enabled = true; }
@@ -71,8 +77,63 @@ export default class Character extends cc.Component {
             }
             this.weaponNode.parent = this.node;
         }
-    }
 
+        
+        var url = cc.url.raw('resources/DataTabels/items.json')
+        cc.loader.load(url, function (err, itemArray) {
+            cc.log('load[' + url + '], err[' + err + '] result: ' + JSON.stringify(itemArray));
+
+            for (var i: number = 0; i < Object.keys(itemArray["json"]["items"]).length; i++) {
+                const name = itemArray["json"]["items"][i]["name"];
+                const weight = itemArray["json"]["items"][i]["weight"];
+
+              
+                this.items.push(new Item(name, weight));
+            }
+            for (var i: number = 0; i < this.items.length; i++) {
+                if (this.items[i] != null) {
+                    cc.log(this.items[i].itemName);
+                }
+                else {
+                    cc.log("this.items[" + i + "] is null");
+                }
+            }
+
+        }.bind(this));
+
+        
+      
+       
+       // cc.loader.load(url, this.loadJSON);
+        
+        //for (var i: number = 0; i < Object.keys(itemArray["json"]["items"]).length; i++) {
+        //    const name = itemArray["json"]["items"][i]["name"];
+        //    const weight = itemArray["json"]["items"][i]["weight"];
+
+        //    var item = new Item();
+        //    item.weight = weight;
+        //    item.name = name;
+        //    this.items.push(item);
+        //}
+
+        //this.items = itemArray;
+    }
+    start() {
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
+
+        cc.log(this.items.length);
+        for (var i: number = 0; i < this.items.length; i++) {
+            if (this.items[i] != null) {
+                cc.log(this.items[i].itemName);
+            }
+            else {
+                cc.log("this.items[" + i + "] is null");
+            }
+        }
+
+    }
+   
     jump(): void {
         this.rigidBody.applyLinearImpulse(cc.v2(0, 2000), cc.v2(this.node.getPosition().x + 10, this.node.getPosition().y + 78), true);
     }
@@ -151,6 +212,19 @@ export default class Character extends cc.Component {
         else if (_event.keyCode == cc.macro.KEY.y) {
             //if (this.node.getComponent(dragonBones.ArmatureDisplay) != null) { this.node.getComponent(dragonBones.ArmatureDisplay).playAnimation("newAnimtion", 10); }
             this.node.position.y = JSON.parse(cc.sys.localStorage['player']).g;
+        }
+        else if (_event.keyCode == cc.macro.KEY.l)
+        {
+            cc.log(this.items.length);
+            for (var i: number = 0; i < this.items.length; i++) {
+                if (this.items[i] != null) {
+                    cc.log(this.items[i].itemName);
+                }
+                else {
+                    cc.log("this.items[" + i + "] is null");
+                }
+            }
+
         }
 
         else if (_event.keyCode == cc.macro.KEY.space) {
@@ -234,10 +308,7 @@ export default class Character extends cc.Component {
     onPostSolve(contact, selfCollider, otherCollider) {
     }
 
-    start() {
-        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
-        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
-    }
+   
 
     update(dt) {
         cc.director.getScene().getChildByName(this.cameraName).setPosition(this.node.getPosition());

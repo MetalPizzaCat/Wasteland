@@ -1,4 +1,4 @@
-import Item from "./Item/Item";
+
 
 // Learn TypeScript:
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -13,7 +13,7 @@ import Item from "./Item/Item";
 const {ccclass, property} = cc._decorator;
 
 @ccclass
-export default class Weapon extends Item {
+export default class Weapon extends cc.Component {
 
     @property
     AmmoPerClip: number = 0;

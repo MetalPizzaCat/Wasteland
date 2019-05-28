@@ -67,15 +67,19 @@ export default class Door extends cc.Component {
     }
 
     open(): void {
+        
         if (!this.locked) {
-            if (!this.node.is3DNode) {
-                this.node.position = cc.v2(this.endLocation3D.x, this.endLocation3D.y);
-                this.node.z = this.endLocation3D.z;
+            if (!this.opened) {
+                if (!this.node.is3DNode) {
+                    this.node.position = cc.v2(this.endLocation3D.x, this.endLocation3D.y);
+                    this.node.z = this.endLocation3D.z;
+                }
+                else {
+                    this.node.position = this.endLocation;
+                }
+                this.openSoundAudioId = cc.audioEngine.play(this.openSound, false, 1);
+                this.opened = true;
             }
-            else {
-                this.node.position = this.endLocation;
-            }
-            this.openSoundAudioId = cc.audioEngine.play(this.openSound, false, 1);
         }
         else {
             this.lockedSoundAudioId = cc.audioEngine.play(this.lockedSound, false, 1);
@@ -85,15 +89,18 @@ export default class Door extends cc.Component {
     close(): void {
         if (!this.locked) {
             if (!this.locked) {
-                if (!this.node.is3DNode) {
-                    this.node.position = cc.v2(this.startLocation3D.x, this.startLocation3D.y);
-                    this.node.z = this.startLocation3D.z;
+                if (this.opened) {
+                    if (!this.node.is3DNode) {
+                        this.node.position = cc.v2(this.startLocation3D.x, this.startLocation3D.y);
+                        this.node.z = this.startLocation3D.z;
+                    }
+                    else {
+                        this.node.position = this.startLocation;
+                    }
                 }
-                else {
-                    this.node.position = this.startLocation;
-                }
+                this.closeSoundAudioId = cc.audioEngine.play(this.closeSound, false, 1);
+                this.opened = false;
             }
-            this.closeSoundAudioId = cc.audioEngine.play(this.closeSound, false, 1);
         }
         else {
             this.lockedSoundAudioId = cc.audioEngine.play(this.lockedSound, false, 1);
