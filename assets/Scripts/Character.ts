@@ -53,6 +53,7 @@ export default class Character extends cc.Component {
 
     movingRight: boolean = false;
 
+    useKeyPressed: boolean = false;
 
     // LIFE-CYCLE CALLBACKS:
 
@@ -77,46 +78,6 @@ export default class Character extends cc.Component {
             }
             this.weaponNode.parent = this.node;
         }
-
-        
-        var url = cc.url.raw('resources/DataTabels/items.json')
-        cc.loader.load(url, function (err, itemArray) {
-            cc.log('load[' + url + '], err[' + err + '] result: ' + JSON.stringify(itemArray));
-
-            for (var i: number = 0; i < Object.keys(itemArray["json"]["items"]).length; i++) {
-                const name = itemArray["json"]["items"][i]["name"];
-                const weight = itemArray["json"]["items"][i]["weight"];
-
-              
-                this.items.push(new Item(name, weight));
-            }
-            for (var i: number = 0; i < this.items.length; i++) {
-                if (this.items[i] != null) {
-                    cc.log(this.items[i].itemName);
-                }
-                else {
-                    cc.log("this.items[" + i + "] is null");
-                }
-            }
-
-        }.bind(this));
-
-        
-      
-       
-       // cc.loader.load(url, this.loadJSON);
-        
-        //for (var i: number = 0; i < Object.keys(itemArray["json"]["items"]).length; i++) {
-        //    const name = itemArray["json"]["items"][i]["name"];
-        //    const weight = itemArray["json"]["items"][i]["weight"];
-
-        //    var item = new Item();
-        //    item.weight = weight;
-        //    item.name = name;
-        //    this.items.push(item);
-        //}
-
-        //this.items = itemArray;
     }
     start() {
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
@@ -148,6 +109,13 @@ export default class Character extends cc.Component {
             this.rigidBody.linearVelocity.x = 0;
             this.movingRight = false;
         }
+        else if (_event.keyCode == cc.macro.KEY.e) {
+            if (this.useKeyPressed) {
+               
+                this.useKeyPressed = false;
+            }
+
+        }
     }
     onKeyDown(_event: cc.Event.EventKeyboard) {
         if (_event.keyCode == cc.macro.KEY.w) {
@@ -163,14 +131,17 @@ export default class Character extends cc.Component {
         }
 
         else if (_event.keyCode == cc.macro.KEY.e) {
-            for (var i = 0; i < this.collidingNodes.length; i++)
-            {
-                if (this.collidingNodes[i] != null) {
-                    if (this.collidingNodes[i].getComponent(UsableObject) != null) {
-                        this.collidingNodes[i].getComponent(UsableObject).beUsed();
+            if (!this.useKeyPressed) {
+                for (var i = 0; i < this.collidingNodes.length; i++) {
+                    if (this.collidingNodes[i] != null) {
+                        if (this.collidingNodes[i].getComponent(UsableObject) != null) {
+                            this.collidingNodes[i].getComponent(UsableObject).beUsed();
+                        }
                     }
                 }
+                this.useKeyPressed = true;
             }
+
         }
 
         else if (_event.keyCode == cc.macro.KEY.r) {
@@ -283,7 +254,13 @@ export default class Character extends cc.Component {
             // otherCollider.node.destroy();
         }
         else if (otherCollider.node.getComponent(UsableObject) != null) {
-            this.collidingNodes.push(otherCollider.node);
+            var shouldAdd: boolean = true;
+            for (var i: number = 0; i < this.collidingNodes.length; i++) {
+                if (this.collidingNodes[i] == otherCollider.node) {
+                    shouldAdd = false;
+                }
+            }
+            if (shouldAdd) { this.collidingNodes.push(otherCollider.node); }
         }
     }
 
