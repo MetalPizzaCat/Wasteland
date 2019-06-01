@@ -2,6 +2,8 @@ import Weapon from "./Weapon";
 import ElevatorTrigger from "./ElevatorTrigger";
 import UsableObject from "./UsableObject";
 import Item from "./Item/Item";
+import ObjectWithInventory from "./InventorySystem/ObjectWithInventory";
+import ItemData from "./InventorySystem/ObjectWithInventory";
 
 // Learn TypeScript:
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -17,7 +19,7 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class Character extends cc.Component {
-    @property(cc.RigidBody)
+   // @property(cc.RigidBody)
     rigidBody: cc.RigidBody = null;
 
     @property
@@ -35,7 +37,7 @@ export default class Character extends cc.Component {
      */
     weapons: [Weapon] = [null];
 
-    items: [Item] = [null];
+    //items: [Item] = [null];
 
     protected currentWeaponId: number = 1;
     @property({
@@ -46,7 +48,7 @@ export default class Character extends cc.Component {
     collidingNodes: [cc.Node] = [null];
 
     //parent node used to display inventory
-    inventoryNode: cc.Node = null;
+    //inventoryNode: cc.Node = null;
 
     //nodes that are use to display inventory items
     itemNodes: [cc.Node] = [null];
@@ -84,39 +86,36 @@ export default class Character extends cc.Component {
             this.weaponNode.parent = this.node;
         }
 
-        var url = cc.url.raw('resources/DataTabels/items.json')
-        cc.loader.load(url, function (err, itemArray) {
+        //var url = cc.url.raw('resources/DataTabels/items.json')
+        //cc.loader.load(url, function (err, itemArray) {
 
-            cc.log(JSON.stringify(itemArray));
-            for (var i: number = 0; i < Object.keys(itemArray["json"]["items"]).length; i++) {
-                const name = itemArray["json"]["items"][i]["name"];
-                const weight = itemArray["json"]["items"][i]["weight"];
-                var item = new Item();
-                item.itemName = name;
-                item.weight = weight;
-                this.items.push(item);
-            }
+        //    cc.log(JSON.stringify(itemArray));
+        //    for (var i: number = 0; i < Object.keys(itemArray["json"]["items"]).length; i++) {
+        //        const name = itemArray["json"]["items"][i]["name"];
+        //        const weight = itemArray["json"]["items"][i]["weight"];
+        //        var item = new Item();
+        //        item.itemName = name;
+        //        item.weight = weight;
+        //        this.items.push(item);
+        //    }
 
-        }.bind(this));
+        //}.bind(this));
 
-        this.inventoryNode = this.node.getChildByName("inventory");
-        
-        
+        //if (this.node.getComponent(ObjectWithInventory) != null) {
+        //    if (this.node.getComponent(ObjectWithInventory).inventoryNode == null && this.node.getChildByName("inventory") != null) {
+        //        this.node.getComponent(ObjectWithInventory).inventoryNode = this.node.getChildByName("inventory");
+        //        this.inventoryNode = this.node.getComponent(ObjectWithInventory).inventoryNode;
+        //    }
+        //}
+        //else {
+        //    this.inventoryNode = this.node.getChildByName("inventory");
+        //} 
+       /// this.inventoryNode = this.node.getComponent(ObjectWithInventory).inventoryNode;
     }
 
     start() {
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
-
-        cc.log(this.items.length);
-        for (var i: number = 0; i < this.items.length; i++) {
-            if (this.items[i] != null) {
-                cc.log(this.items[i].itemName);
-            }
-            else {
-                cc.log("this.items[" + i + "] is null");
-            }
-        }
 
     }
 
@@ -142,10 +141,14 @@ export default class Character extends cc.Component {
 
         }
         else if (_event.keyCode == cc.macro.KEY.tab) {
-            this.inventoryNode.active = false;
+
+            this.node.getComponent(ObjectWithInventory).deactivateInventory();
         }
        
     }
+
+
+
     onKeyDown(_event: cc.Event.EventKeyboard) {
         if (_event.keyCode == cc.macro.KEY.w) {
             if (this.isOnTheGround() == true) { this.jump(); }
@@ -211,19 +214,21 @@ export default class Character extends cc.Component {
 
         else if (_event.keyCode == cc.macro.KEY.y) {
             //if (this.node.getComponent(dragonBones.ArmatureDisplay) != null) { this.node.getComponent(dragonBones.ArmatureDisplay).playAnimation("newAnimtion", 10); }
-            this.node.position.y = JSON.parse(cc.sys.localStorage['player']).g;
-        }
-        else if (_event.keyCode == cc.macro.KEY.l) {
-            cc.log(this.items.length);
-            for (var i: number = 0; i < this.items.length; i++) {
-                if (this.items[i] != null) {
-                    cc.log(this.items[i].itemName);
-                }
-                else {
-                    cc.log("this.items[" + i + "] is null");
+            //this.node.position.y = JSON.parse(cc.sys.localStorage['player']).g;
+            for (let i: number = 0; i < this.node.getComponent(ObjectWithInventory).items.length; i++) {
+                if (this.node.getComponent(ObjectWithInventory).items[i] != null) {
+                    cc.log(this.node.getComponent(ObjectWithInventory).items[i].itemName + " (" + this.node.getComponent(ObjectWithInventory).items[i].amount + ")");
                 }
             }
+        }
+        else if (_event.keyCode == cc.macro.KEY.l) {
+           // this.node.getComponent(ObjectWithInventory).removeItem("cup", 1);
 
+            cc.director.getScene().getChildByName("Canvas").getChildByName(this.cameraName).setPosition(this.node.getPosition().sub(cc.director.getScene().getChildByName("Canvas").position));
+            let armature: dragonBones.Armature = this.node.getComponent(dragonBones.ArmatureDisplay).armature();
+           
+
+            
         }
 
         else if (_event.keyCode == cc.macro.KEY.space) {
@@ -239,7 +244,7 @@ export default class Character extends cc.Component {
         }
         else if (_event.keyCode == cc.macro.KEY.tab) {
             //first item is always null
-            this.inventoryNode.active = true;
+            this.node.getComponent(ObjectWithInventory).activateInventory();
            
            
         }
@@ -295,6 +300,10 @@ export default class Character extends cc.Component {
             }
             if (shouldAdd) { this.collidingNodes.push(otherCollider.node); }
         }
+        else if (otherCollider.node.getComponent(Item) != null) {
+            this.getComponent(ObjectWithInventory).addItem(otherCollider.node.getComponent(Item).itemName, otherCollider.node.getComponent(Item).amount);
+            otherCollider.node.destroy();
+        }
     }
 
     // will be called once when the contact between two colliders just about to end.
@@ -321,23 +330,30 @@ export default class Character extends cc.Component {
 
 
     update(dt) {
-        cc.director.getScene().getChildByName(this.cameraName).setPosition(this.node.getPosition());
 
-        if (this.items.length - 1 != this.inventoryNode.getComponent(cc.ScrollView).content.childrenCount) {
-            for (var i: number = 1; i < this.items.length; i++) {
-                if (this.items[i] != null) {
+        cc.director.getScene().getChildByName("Canvas").getChildByName(this.cameraName).setPosition(this.node.getPosition().sub(cc.director.getScene().getChildByName("Canvas").position));
+        let armature: dragonBones.Armature = this.node.getComponent(dragonBones.ArmatureDisplay).armature();
+        let pos: cc.Vec2 = cc.v2(armature.getBone("hand_right").global.x, -armature.getBone("hand_right").global.y);
+       
+        this.weaponNode.setPosition(pos);
 
-                    this.inventoryNode.getComponent(cc.ScrollView).content.addChild(new cc.Node(this.items[i].itemName));
-                    this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).addComponent(cc.Label);
-                    this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Label).horizontalAlign = cc.Label.HorizontalAlign.LEFT;
-                    this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Label).string = this.items[i].itemName;
-                    this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).setPosition(this.inventoryNode.getChildByName("view").getChildByName("content").getChildByName(this.items[i].itemName).getPosition().x, - i * 35);
+        armature.getBone("shoulder_right").offset.rotation = Math.PI;
+        
+        //if (this.items.length - 1 != this.inventoryNode.getComponent(cc.ScrollView).content.childrenCount) {
+        //    for (var i: number = 1; i < this.items.length; i++) {
+        //        if (this.items[i] != null) {
 
-                }
-                else {
-                    alert("item at " + i + " is null");
-                }
-            }
-        }
+        //            this.inventoryNode.getComponent(cc.ScrollView).content.addChild(new cc.Node(this.items[i].itemName));
+        //            this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).addComponent(cc.Label);
+        //            this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Label).horizontalAlign = cc.Label.HorizontalAlign.LEFT;
+        //            this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Label).string = this.items[i].itemName;
+        //            this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).setPosition(this.inventoryNode.getChildByName("view").getChildByName("content").getChildByName(this.items[i].itemName).getPosition().x, - i * 35);
+
+        //        }
+        //        else {
+        //            alert("item at " + i + " is null");
+        //        }
+        //    }
+        //}
     }
 }

@@ -13,30 +13,92 @@ const {ccclass, property} = cc._decorator;
 @ccclass
 export default class Item extends cc.Component {
     //name of the entry in .json file
+
     @property
     itemName: string = 'item';
 
     weight: number = 0;
 
+    @property
+    amount: number = 0;
+
+    imageName: string = "Items/clipboard.png";
+
+    pickupSoundName: string = "sounds/bottle/itm_bottle_up_01.wav";
+
+    dropSoundName: string = "sounds/bottle/itm_bottle_down_01.wav";
     // LIFE-CYCLE CALLBACKS:
 
     onLoad() {
         var url = cc.url.raw('resources/DataTabels/items.json')
         cc.loader.load(url, function (err, itemArray) {
-
-
-            for (var i: number = 0; i < Object.keys(itemArray["json"]["items"]).length; i++) {
-                const name = itemArray["json"]["items"][i]["name"];
-                const weight = itemArray["json"]["items"][i]["weight"];
-                if (this.itemName == itemArray["json"]["items"][i]["name"]) {
-                    this.weight = itemArray["json"]["items"][i]["weight"];
+            if (itemArray != null) {
+                for (var i: number = 0; i < Object.keys(itemArray["json"]["items"]).length; i++) {
+                    const name = itemArray["json"]["items"][i]["name"];
+                    const weight = itemArray["json"]["items"][i]["weight"];
+                    if (this.itemName == itemArray["json"]["items"][i]["name"]) {
+                        this.weight = itemArray["json"]["items"][i]["weight"];
+                        this.imageName = itemArray["json"]["items"][i]["imageName"];
+                    }
                 }
             }
-
+            else {
+                throw new Error("Failed to load DataTable for items");
+            }
         }.bind(this));
         if (this.weight < 0) {
             alert("item's weight is lower than zero");
         }
+    }
+
+    /**
+     * Load data from json table
+    @param data Result of loading json file wit cc.loader.load 
+    @return Returns true if reading data for item was successful, false if otherwise
+    */
+    loadDataForItem(data): boolean {
+
+        for (var i: number = 0; i < Object.keys(data["json"]["items"]).length; i++) {
+            const name = data["json"]["items"][i]["name"];
+            const weight = data["json"]["items"][i]["weight"];
+            if (this.itemName == data["json"]["items"][i]["name"]) {
+                //load all needed data
+                this.weight = data["json"]["items"][i]["weight"];
+                this.imageName = data["json"]["items"][i]["imageName"];
+                //finish 
+                return true;
+                
+            }
+        }
+        //table ended but no suitable entry was found
+        return false;
+    }
+
+    loadDataForItemFromFile(): boolean{
+        let result: boolean = false;
+        var url = cc.url.raw('resources/DataTabels/items.json');
+        cc.loader.load(url, function (err, data) {
+            if (data != null) {
+                cc.log(JSON.stringify(data));
+                for (var i: number = 0; i < Object.keys(data["json"]["items"]).length; i++) {
+                    if (this.itemName == data["json"]["items"][i]["name"]) {
+                        //load all needed data
+                        this.weight = data["json"]["items"][i]["weight"];
+                        this.imageName = data["json"]["items"][i]["imageName"];
+                        //finish 
+                        result = true;
+                        break;
+
+                    }
+                }
+            }
+            else {
+                cc.log(typeof err + " " + err + " " + JSON.stringify(err));
+                throw new Error("Failed to load DataTable for items Function: ' loadDataForItemFromFile(): boolean' Error: " + err + " itemName: " + this.itemName + " amount: " + this.amount); 
+            }
+        }.bind(this, result));
+        //table ended but no suitable entry was found
+        return result;
     }
 
     //constructor(name: string, weight: number) {
@@ -44,8 +106,9 @@ export default class Item extends cc.Component {
     //    this.weight = weight;
     //    this.name = name;
     //}
-    start () {
 
+    start() {
+       
     }
 
     // update (dt) {}
