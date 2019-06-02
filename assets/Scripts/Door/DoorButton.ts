@@ -1,5 +1,7 @@
-import UsableObject from "../UsableObject";
 import Door from "./Door";
+import UsableObject from "../UsableObject";
+
+
 // Learn TypeScript:
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
 //  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/typescript.html
@@ -12,26 +14,50 @@ import Door from "./Door";
 
 const {ccclass, property} = cc._decorator;
 
+export enum DoorAction {
+    Open,
+    Close,
+    Lock,
+    UnLock,
+    ToggleOpen,
+    ToggleLock
+}
+
 @ccclass
 export default class DoorButton extends UsableObject {
 
-    @property
-    doorName: string = 'door';
+    @property({ type: cc.Enum(DoorAction) })
+    action: DoorAction = DoorAction.ToggleOpen;
+
+    @property(cc.Node)
+    door: cc.Node = null;
 
     // LIFE-CYCLE CALLBACKS:
 
     // onLoad () {}
-
-    beUsed(): void {
-        if (cc.director.getScene().getChildByName(this.doorName) != null) {
-            if (cc.director.getScene().getChildByName(this.doorName).getComponent(Door) != null) {
-                cc.director.getScene().getChildByName(this.doorName).getComponent(Door).open();
+    beUsed(node: cc.Node): void {
+        if (this.door != null) {
+            for (let i: number = 0; i < this.door.getComponents(Door).length; i++) {
+                if (this.door.getComponents(Door) != null) {
+                    if (this.action == DoorAction.Open) { this.door.getComponents(Door)[i].open(); }
+                    else if (this.action == DoorAction.Close) { this.door.getComponents(Door)[i].close(); }
+                    else if (this.action == DoorAction.Lock) { this.door.getComponents(Door)[i].lock(); }
+                    else if (this.action == DoorAction.UnLock) { this.door.getComponents(Door)[i].unLock(); }
+                    else if (this.action = DoorAction.ToggleLock) {
+                        if (this.door.getComponents(Door)[i].locked) { this.door.getComponents(Door)[i].unLock(); }
+                        else { this.door.getComponents(Door)[i].lock();}
+                    }
+                    else if (this.action = DoorAction.ToggleOpen ){
+                        if (this.door.getComponents(Door)[i].opened) { this.door.getComponents(Door)[i].close(); }
+                        else { this.door.getComponents(Door)[i].open(); }
+                    }
+                }
             }
         }
     }
 
-    start () {
-
+    start() {
+        
     }
 
     // update (dt) {}
