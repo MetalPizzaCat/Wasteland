@@ -1,5 +1,6 @@
 import Item from "../Item/Item";
 import ItemSoundDataScript from "./ItemSoundData";
+import Weapon from "../WeaponSystem/Weapon";
 
 // Learn TypeScript:
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -24,6 +25,27 @@ class ItemData {
     amount: number = 0;
 }
 
+/*
+ * used to safely move item between inventories
+  */
+@ccclass
+class InventoryBridge {
+    inventoryOne: ObjectWithInventory = null;
+
+    inventoryTwo: ObjectWithInventory = null;
+
+    //move item from One to Two
+    moveItemToTwo(name: string, amount: number) {
+        this.inventoryOne.removeItem(name, amount);
+        this.inventoryTwo.addItem(name, amount);
+    }
+
+    //move item from Two to One
+    moveItemToOne(name: string, amount: number) {
+        this.inventoryTwo.removeItem(name, amount);
+        this.inventoryOne.addItem(name, amount);
+    }
+}
 
 @ccclass
 export default class ObjectWithInventory extends cc.Component {
@@ -35,6 +57,14 @@ export default class ObjectWithInventory extends cc.Component {
 
     @property(cc.Node)
     itemSoundDataNode: cc.Node = null;
+
+    
+    //@property(ObjectWithInventory)
+    /*
+     *if you want to safely move objects from one inventory to another assign other one to this field
+     *
+     * */
+    otherInventory: ObjectWithInventory = null;
 
     //parent node used to display inventory
     @property(cc.Node)
@@ -50,31 +80,50 @@ export default class ObjectWithInventory extends cc.Component {
     itemButtonDefault: cc.SpriteFrame = null;
 
     activated: boolean = false;
+
+    selectedItemIndex: number = 0;
+
     // LIFE-CYCLE CALLBACKS:
 
     itemDataTable;
 
     onLoad() {
-        for (var i: number = 0; i < this.itemsData.length; i++) {
-            if (this.itemsData[i] != null) {
-                var item = new Item();
-                item.itemName = this.itemsData[i].name;
-                item.amount = this.itemsData[i].amount;
-                this.items.push(item);
-            }
-        }
-        cc.log(this.items.length);
         var url = cc.url.raw('resources/DataTabels/items.json')
         cc.loader.load(url, function (err, itemArray) {
+            for (var i: number = 0; i < this.itemsData.length; i++) {
+                if (this.itemsData[i] != null) {
+                    var item = new Item();
+                    item.itemName = this.itemsData[i].name;
+                    item.amount = this.itemsData[i].amount;
+                    for (let u: number = 0; u < Object.keys(itemArray["json"]["items"]).length; u++) {
+                        if (itemArray["json"]["items"][u]["name"] == this.itemsData[i].name) {
+                            if (itemArray["json"]["items"][u]["type"] == "Weapon") {
+                                item = new Weapon();
+                                item.itemName = this.itemsData[i].name;
+                                item.amount = this.itemsData[i].amount;
+                                item.loadDataForItem(itemArray);
+                            }
+                            else {
+                                item.loadDataForItem(itemArray);
+                            }
+                        }
+                    }
+                    this.items.push(item);
+                }
+            }
+            cc.log(this.items.length);
+
 
             cc.log(this.items.length);
             for (var i: number = 1; i < this.items.length; i++) {
+
                 this.items[i].loadDataForItem(itemArray);
             }
             this.itemDataTable = itemArray;
+
         }.bind(this));
 
-        if (this.itemSoundDataNode == null || this.itemSoundDataNode.getComponent(ItemSoundDataScript) == null) { alert("There must be itemSoundDataNode with ItemSoundDataScript comonent"); close(); }
+        if (this.itemSoundDataNode == null || this.itemSoundDataNode.getComponent(ItemSoundDataScript) == null) { alert("There must be itemSoundDataNode with ItemSoundDataScript component"); close(); }
     }
 
     start() {
@@ -85,6 +134,31 @@ export default class ObjectWithInventory extends cc.Component {
         this.addItem(customEventData, 1);
     }
 
+    dropButtonCallback(event, customEventData) {
+        
+
+        let itemNode = new cc.Node(this.items[this.selectedItemIndex].itemName);
+        itemNode.addComponent(Item);
+        itemNode.getComponent(Item).itemName = this.items[this.selectedItemIndex].itemName;
+        itemNode.getComponent(Item).amount = 1;
+        itemNode.addComponent(cc.Sprite);
+        itemNode.getComponent(cc.Sprite).spriteFrame = new cc.SpriteFrame(this.items[this.selectedItemIndex].imageName);
+        itemNode.addComponent(cc.RigidBody);
+        itemNode.addComponent(cc.PhysicsBoxCollider);
+
+        itemNode.parent = cc.director.getScene();
+        itemNode.setPosition(this.node.getPosition().add(cc.v2(200, 0)));
+        itemNode.getComponent(cc.PhysicsBoxCollider).size = cc.size(itemNode.getComponent(cc.Sprite).spriteFrame.getOriginalSize().width, itemNode.getComponent(cc.Sprite).spriteFrame.getOriginalSize().height);
+        itemNode.getComponent(cc.PhysicsBoxCollider).apply();
+
+        this.removeItem(this.items[this.selectedItemIndex].itemName, 1);
+
+        for (let i: number = 0; i < this.itemSoundDataNode.getComponent(ItemSoundDataScript).sounds.length; i++) {
+            if (this.itemSoundDataNode.getComponent(ItemSoundDataScript).sounds[i].name == this.items[this.selectedItemIndex].itemName) {
+                cc.audioEngine.play(this.itemSoundDataNode.getComponent(ItemSoundDataScript).sounds[i].dropSound[0], false, 1);
+            }
+        }
+    }
 
     /**
      * Safe way of removing items from invemtory of object
@@ -162,10 +236,28 @@ export default class ObjectWithInventory extends cc.Component {
             if (this.items.length - 1 != this.inventoryNode.getComponent(cc.ScrollView).content.childrenCount) {
                
                 this.refreshInventoryNode();
+                this.inventoryNode.setPosition(cc.v2(0, 0));
+               
             }
 
             this.inventoryNode.active = true;
             this.activated = true;
+            if (this.otherInventory != null) {
+                if (this.getComponent(ObjectWithInventory).inventoryNode.getChildByName("dropButton") != null) {
+                    this.getComponent(ObjectWithInventory).inventoryNode.getChildByName("dropButton").active = false;
+                }
+                if (this.getComponent(ObjectWithInventory).inventoryNode.getChildByName("setAsCurrentWeaponButton") != null) {
+                    this.getComponent(ObjectWithInventory).inventoryNode.getChildByName("setAsCurrentWeaponButton").active = false;
+                }
+            }
+            else {
+                if (this.getComponent(ObjectWithInventory).inventoryNode.getChildByName("dropButton") != null) {
+                    this.getComponent(ObjectWithInventory).inventoryNode.getChildByName("dropButton").active = true;
+                }
+                if (this.getComponent(ObjectWithInventory).inventoryNode.getChildByName("setAsCurrentWeaponButton") != null) {
+                    this.getComponent(ObjectWithInventory).inventoryNode.getChildByName("setAsCurrentWeaponButton").active = true;
+                }
+            }
         }
         else if (this.inventoryNode == null) {
             throw new Error("Failed to find inventory node");
@@ -178,6 +270,7 @@ export default class ObjectWithInventory extends cc.Component {
             this.inventoryNode.active = false;
             this.activated = false;
         }
+        if (this.otherInventory != null) { this.otherInventory.otherInventory = null; this.otherInventory.deactivateInventory(); this.otherInventory = null; }
     }
 
     refreshInventoryNode() {
@@ -224,7 +317,7 @@ export default class ObjectWithInventory extends cc.Component {
                     this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").addComponent(cc.Label);
 
                     this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").getComponent(cc.Label).horizontalAlign = cc.Label.HorizontalAlign.LEFT;
-                    this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").getComponent(cc.Label).string = this.items[i].itemName + "(" + this.items[i].amount + ")";
+                    this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").getComponent(cc.Label).string = this.items[i].displayName + "(" + this.items[i].amount + ")";
                     this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).setPosition(this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getPosition().x, - i * 35);
                     this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").getComponent(cc.Label).fontSize = 24;
                     // cc.log("supposed name " + this.items[i].itemName + " result name " + this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Label).string);
@@ -232,39 +325,26 @@ export default class ObjectWithInventory extends cc.Component {
                     this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Button).clickEvents.push(clickEventHandler);
 
                     this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").on('mousedown', function (event) {
-
                         
 
-                        let itemNode = new cc.Node(this.items[index].itemName);
-                        itemNode.addComponent(Item);
-                        itemNode.getComponent(Item).itemName = this.items[index].itemName;
-                        itemNode.getComponent(Item).amount = 1;
-                        itemNode.addComponent(cc.Sprite); 
-                        itemNode.getComponent(cc.Sprite).spriteFrame = new cc.SpriteFrame(this.items[index].imageName);
-                        itemNode.addComponent(cc.RigidBody);
-                        itemNode.addComponent(cc.PhysicsBoxCollider);
-
-                        itemNode.parent = cc.director.getScene();
-                        itemNode.setPosition(this.node.getPosition().add(cc.v2(100, 0)));
-                        itemNode.getComponent(cc.PhysicsBoxCollider).size = cc.size(itemNode.getComponent(cc.Sprite).spriteFrame.getOriginalSize().width, itemNode.getComponent(cc.Sprite).spriteFrame.getOriginalSize().height);
-                        itemNode.getComponent(cc.PhysicsBoxCollider).apply();
-
-                        this.removeItem(this.items[index].itemName, 1);
-
-                        for (let i: number = 0; i < this.itemSoundDataNode.getComponent(ItemSoundDataScript).sounds.length; i++) {
-                            if (this.itemSoundDataNode.getComponent(ItemSoundDataScript).sounds[i].name == this.items[index].itemName) {
-                                cc.audioEngine.play(this.itemSoundDataNode.getComponent(ItemSoundDataScript).sounds[i].dropSound[0], false, 1);
-                            }
+                        if (this.otherInventory != null) {
+                            this.removeItem(this.items[index].itemName, 1);
+                            this.otherInventory.addItem(this.items[index].itemName, 1);
                         }
-                       
+                        else {
+                            this.selectedItemIndex = index;
+                        }
+
+
                     }.bind(this, index));
-                    
+
                 }
                 else {
                     cc.log("Failed to add child with name " + this.items[i].itemName);
                 }
 
             }
+
             else {
                 cc.log("item at " + i + " is null");
             }
@@ -272,6 +352,11 @@ export default class ObjectWithInventory extends cc.Component {
     }
 
     update(dt) {
-
+        for (let i: number = 0; i < this.items.length; i++) {
+            if (this.items[i] != null) {
+               
+                this.items[i].manualUpdate(dt);
+            }
+        }
     }
 }

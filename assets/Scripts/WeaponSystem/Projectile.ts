@@ -11,15 +11,14 @@
 const {ccclass, property} = cc._decorator;
 
 @ccclass
-export default class UsableObject extends cc.Component {
+export default class Projectile extends cc.Component {
 
-   
+    @property({min:0})
+    damage: number = 0;
 
     // LIFE-CYCLE CALLBACKS:
 
     // onLoad () {}
-    beUsed(node: cc.Node): void { }
-
 
     start () {
 

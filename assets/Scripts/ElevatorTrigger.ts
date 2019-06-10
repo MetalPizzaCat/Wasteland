@@ -16,8 +16,8 @@ const {ccclass, property} = cc._decorator;
 
 @ccclass
 export default class ElevatorTrigger extends UsableObject {
-    @property
-    elevatorName: string = 'elevator';
+    @property(cc.Node)
+    elevator: cc.Node = null;
 
     // LIFE-CYCLE CALLBACKS:
 
@@ -56,13 +56,14 @@ export default class ElevatorTrigger extends UsableObject {
     onPostSolve(contact, selfCollider, otherCollider) {
     }
 
-    beUsed() {
-        cc.log("i'm used");
-        if (cc.director.getScene().getChildByName(this.elevatorName) != null) {
-            if (cc.director.getScene().getChildByName(this.elevatorName).getComponent(Elevator) != null) {
-                cc.director.getScene().getChildByName(this.elevatorName).getComponent(Elevator).startMovement();
+    beUsed(node: cc.Node) {
+
+        if (this.elevator != null) {
+            if (this.elevator.getComponent(Elevator) != null) {
+                this.elevator.getComponent(Elevator).startMovement();
             }
         }
+
     }
 
     start () {

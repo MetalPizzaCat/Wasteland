@@ -37,21 +37,23 @@ export default class DoorButton extends UsableObject {
     // onLoad () {}
     beUsed(node: cc.Node): void {
         if (this.door != null) {
-            for (let i: number = 0; i < this.door.getComponents(Door).length; i++) {
-                if (this.door.getComponents(Door) != null) {
-                    if (this.action == DoorAction.Open) { this.door.getComponents(Door)[i].open(); }
-                    else if (this.action == DoorAction.Close) { this.door.getComponents(Door)[i].close(); }
-                    else if (this.action == DoorAction.Lock) { this.door.getComponents(Door)[i].lock(); }
-                    else if (this.action == DoorAction.UnLock) { this.door.getComponents(Door)[i].unLock(); }
-                    else if (this.action = DoorAction.ToggleLock) {
-                        if (this.door.getComponents(Door)[i].locked) { this.door.getComponents(Door)[i].unLock(); }
-                        else { this.door.getComponents(Door)[i].lock();}
-                    }
-                    else if (this.action = DoorAction.ToggleOpen ){
-                        if (this.door.getComponents(Door)[i].opened) { this.door.getComponents(Door)[i].close(); }
-                        else { this.door.getComponents(Door)[i].open(); }
-                    }
+            cc.log(this.action);
+            if (this.door.getComponent(Door) != null) {
+
+                if (this.action == DoorAction.Open) { this.door.getComponent(Door).open(); }
+                else if (this.action == DoorAction.Close) { this.door.getComponent(Door).close(); }
+                else if (this.action == DoorAction.Lock) { this.door.getComponent(Door).lock(); }
+                else if (this.action == DoorAction.UnLock) { this.door.getComponent(Door).unLock(); }
+                else if (this.action == DoorAction.ToggleLock) {
+                    if (this.door.getComponent(Door).locked) { this.door.getComponent(Door).unLock(); }
+                    else { this.door.getComponent(Door).lock(); }
                 }
+                else if (this.action == DoorAction.ToggleOpen) {
+                    cc.log(this.door.getComponent(Door).opened);
+                    if (this.door.getComponent(Door).opened) { this.door.getComponent(Door).close(); cc.log("ddd"); }
+                    else { this.door.getComponent(Door).open(); cc.log("ddd"); }
+                }
+
             }
         }
     }

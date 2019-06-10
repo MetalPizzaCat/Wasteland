@@ -15,6 +15,8 @@ export default class Item extends cc.Component {
     //name of the entry in .json file
 
     @property
+    canBePickedUp: boolean = true;
+    @property
     itemName: string = 'item';
 
     weight: number = 0;
@@ -22,11 +24,15 @@ export default class Item extends cc.Component {
     @property
     amount: number = 0;
 
+    type: string = "item";
+
     imageName: string = "Items/clipboard.png";
 
     pickupSoundName: string = "sounds/bottle/itm_bottle_up_01.wav";
 
     dropSoundName: string = "sounds/bottle/itm_bottle_down_01.wav";
+
+    displayName: string = "item";
     // LIFE-CYCLE CALLBACKS:
 
     onLoad() {
@@ -39,6 +45,7 @@ export default class Item extends cc.Component {
                     if (this.itemName == itemArray["json"]["items"][i]["name"]) {
                         this.weight = itemArray["json"]["items"][i]["weight"];
                         this.imageName = itemArray["json"]["items"][i]["imageName"];
+                        this.displayName = itemArray["json"]["items"][i]["displayName"];
                     }
                 }
             }
@@ -65,6 +72,8 @@ export default class Item extends cc.Component {
                 //load all needed data
                 this.weight = data["json"]["items"][i]["weight"];
                 this.imageName = data["json"]["items"][i]["imageName"];
+                this.type = data["json"]["items"][i]["type"];
+                this.displayName = data["json"]["items"][i]["displayName"];
                 //finish 
                 return true;
                 
@@ -85,6 +94,8 @@ export default class Item extends cc.Component {
                         //load all needed data
                         this.weight = data["json"]["items"][i]["weight"];
                         this.imageName = data["json"]["items"][i]["imageName"];
+                        this.type = data["json"]["items"][i]["type"];
+                        this.displayName = data["json"]["items"][i]["displayName"];
                         //finish 
                         result = true;
                         break;
@@ -110,6 +121,10 @@ export default class Item extends cc.Component {
     start() {
        
     }
-
-    // update (dt) {}
+    /**
+     * Update that can only be called once AND only in update function
+     * @param dt Delta time
+     */
+    manualUpdate(dt) {
+    }
 }
