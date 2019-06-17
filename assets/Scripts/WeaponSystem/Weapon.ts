@@ -2,6 +2,9 @@ import Item from "../Item/Item";
 import Projectile from "./Projectile"
 import Character from "../Character";
 import ObjectWithInventory from "../InventorySystem/ObjectWithInventory";
+import WeaponSoundDataScript from "./WeaponSoundData";
+import WeaponSoundData from "./WeaponSoundData";
+
 
 // Learn TypeScript:
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -17,7 +20,7 @@ const {ccclass, property} = cc._decorator;
 /*
  * Used to define animation used to play when firing weapon
  */
-enum WeaponType {
+export enum WeaponType {
     Melee = "Melee",
     Pistol = "Pistol",
     Rifle = "Rifle",
@@ -28,8 +31,8 @@ enum WeaponType {
  * Used to define animation used to play when firing weapon
  */
 enum WeaponHandType {
-    OneHanded,
-    TwoHanded
+    OneHanded = "OneHanded",
+    TwoHanded = "TwoHanded"
 }
 
 @ccclass
@@ -43,7 +46,7 @@ export default class Weapon extends Item {
 
     @property
     SecondaryAmmoPerClip: number = 0;
-
+    
     @property
     SecondaryAmmoLeftInTheClip: number = 0;
 
@@ -53,8 +56,15 @@ export default class Weapon extends Item {
     @property({ type: cc.Enum(WeaponType) })
     WeaponType: WeaponType = WeaponType.Melee;
 
+    @property(cc.Node)
+    weaponSoundDataNode: cc.Node = null;
+
+
     //Primary fire of the weapon - INFO - BEGIN
     //if object is melee this property will not be used
+
+    primaryFireParentNode: cc.Node = null;
+
     primaryFireProjectileName: string = "melee";
 
     primaryProjectileData: any = null;
@@ -66,12 +76,21 @@ export default class Weapon extends Item {
     primaryFireTimeSinceLastShot: number = 0.0;
 
     primaryShot: boolean = false;
+
+    primaryReloading: boolean = false;
+
+    primaryTimeToReload: number = 2.0;
+
+    primaryTimeInReload: number = 0.0;
     //Primary fire of the weapon - INFO - END
 
     //------------------------------------------------------------------
 
     //Primary fire of the weapon - INFO - BEGIN
     //if object is melee this property will not be used
+
+    secondaryFireParentNode: cc.Node = null;
+
     secondaryFireProjectileName: string = "melee";
 
     secondaryProjectileData: any = null;
@@ -83,12 +102,24 @@ export default class Weapon extends Item {
     secondaryAmmoType: string = "";
 
     secondaryShot: boolean = false;
+
+    secondaryReloading: boolean = false;
+
+    secondaryTimeToReload: number = 0.0;
+
+    secondaryTimeInReload: number = 0.0;
     //Primary fire of the weapon - INFO - END
 
 
     // LIFE-CYCLE CALLBACKS:
 
     primaryReload(parent: cc.Node): void {
+        this.primaryReloading = true;
+        this.primaryTimeInReload = 0.0;
+        this.primaryFireParentNode = parent;
+    }
+
+    primaryEndReload(parent: cc.Node): void {
         if (parent != null) {
             if (parent.getComponent(ObjectWithInventory) != null) {
                 for (let i: number = 0; i < parent.getComponent(ObjectWithInventory).items.length; i++) {
@@ -97,10 +128,14 @@ export default class Weapon extends Item {
                             if (parent.getComponent(ObjectWithInventory).items[i].amount >= this.PrimaryAmmoPerClip) {
                                 this.PrimaryAmmoLeftInTheClip = this.PrimaryAmmoPerClip;
                                 parent.getComponent(ObjectWithInventory).removeItem(parent.getComponent(ObjectWithInventory).items[i].itemName, this.PrimaryAmmoPerClip);
+                                this.primaryFireParentNode.emit('primaryendreload');
+                                this.primaryFireParentNode = null;
                             }
                             else if (parent.getComponent(ObjectWithInventory).items[i].amount > 0 && parent.getComponent(ObjectWithInventory).items[i].amount < this.PrimaryAmmoPerClip) {
                                 this.PrimaryAmmoLeftInTheClip = parent.getComponent(ObjectWithInventory).items[i].amount;
                                 parent.getComponent(ObjectWithInventory).removeItem(parent.getComponent(ObjectWithInventory).items[i].itemName, this.PrimaryAmmoPerClip);
+                                this.primaryFireParentNode.emit('primaryendreload');
+                                this.primaryFireParentNode = null;
                             }
                         }
                     }
@@ -110,6 +145,12 @@ export default class Weapon extends Item {
     }
 
     secondaryReload(parent: cc.Node): void {
+        this.secondaryReloading = true;
+        this.secondaryTimeInReload = 0.0;
+        this.secondaryFireParentNode = parent;
+    }
+
+    secondaryEndReload(parent: cc.Node): void {
         if (parent != null) {
             if (parent.getComponent(ObjectWithInventory) != null) {
                 for (let i: number = 0; i < parent.getComponent(ObjectWithInventory).items.length; i++) {
@@ -117,10 +158,14 @@ export default class Weapon extends Item {
                         if (parent.getComponent(ObjectWithInventory).items[i].amount >= this.SecondaryAmmoPerClip) {
                             this.SecondaryAmmoLeftInTheClip = this.SecondaryAmmoPerClip;
                             parent.getComponent(ObjectWithInventory).removeItem(parent.getComponent(ObjectWithInventory).items[i].itemName, this.SecondaryAmmoPerClip);
+                            this.secondaryFireParentNode.emit('secondaryendreload');
+                            this.secondaryFireParentNode = null;
                         }
                         else if (parent.getComponent(ObjectWithInventory).items[i].amount > 0 && parent.getComponent(ObjectWithInventory).items[i].amount < this.SecondaryAmmoPerClip) {
                             this.SecondaryAmmoLeftInTheClip = parent.getComponent(ObjectWithInventory).items[i].amount;
                             parent.getComponent(ObjectWithInventory).removeItem(parent.getComponent(ObjectWithInventory).items[i].itemName, parent.getComponent(ObjectWithInventory).items[i].amount);
+                            this.secondaryFireParentNode.emit('secondaryendreload');
+                            this.secondaryFireParentNode = null;                          
                         }
                     }
                 }
@@ -150,9 +195,24 @@ export default class Weapon extends Item {
 
     PrimaryFireGun(location: cc.Vec2, rotation: number, parent: cc.Node): void {
         //due to unabiluty to create safe and easy way of storing data table in in somekind of  storage object data will be loaded and realeased each time by default
-        cc.audioEngine.play(parent.getComponent(Character).sound[0], false, 1);
-
-        cc.log("file");
+        if (this.weaponSoundDataNode != null) {
+            if (this.weaponSoundDataNode.getComponent(WeaponSoundDataScript) != null) {
+                for (let i: number = 0; i < this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds.length; i++) {
+                    if (this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds[i].name = this.itemName) {
+                        cc.audioEngine.play(this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds[i].primaryShootSound[0], false, 1);
+                    }
+                }
+            }
+            else {
+                alert("very bad");
+            }
+        }
+        else {
+            alert("bad");
+        }
+       // cc.audioEngine.play(parent.getComponent(Character).sound[0], false, 1);
+ 
+       
 
         let projectile = new cc.Node();
         projectile.addComponent(cc.RigidBody);
@@ -160,7 +220,16 @@ export default class Weapon extends Item {
         projectile.addComponent(cc.Sprite);
         projectile.addComponent(Projectile);
 
-        cc.log(this.primaryProjectileData);
+        if (projectile.getComponent(Projectile) != null) {
+            projectile.getComponent(Projectile).damage = this.primaryProjectileData["damage"];
+            projectile.getComponent(Projectile).destroyOnTouch = this.primaryProjectileData["destroyOnTouch"];
+            projectile.getComponent(Projectile).lifeTime = this.primaryProjectileData["lifeTime"];
+        }
+
+        if (projectile.getComponent(cc.RigidBody) != null) {
+            projectile.getComponent(cc.RigidBody).enabledContactListener = true;
+           
+        }
 
         if (this.primaryProjectileData != null) {
 
@@ -193,7 +262,6 @@ export default class Weapon extends Item {
             else { return false; }
         }
         else if (this.WeaponType == WeaponType.Pistol || this.WeaponType == WeaponType.Rifle || this.WeaponType == WeaponType.Shotgun) {
-            cc.log("Can shoot: " + this.canPrimaryFire());
             if (this.canPrimaryFire()) { this.PrimaryFireGun(location, rotation, parent); return true; }
             else { return false; }
         }
@@ -349,5 +417,15 @@ export default class Weapon extends Item {
                 this.secondaryFireTimeSinceLastShot = 0.0;
             }
         }
+
+        if (this.primaryReloading) {
+            this.primaryTimeInReload += dt;
+            if (this.primaryTimeInReload >= this.primaryTimeToReload) { this.primaryEndReload(this.primaryFireParentNode); }
+        }
+
+        if (this.secondaryReloading) {
+            this.secondaryTimeInReload += dt;
+            if (this.secondaryTimeInReload >= this.secondaryTimeToReload) { this.secondaryEndReload(this.secondaryFireParentNode); }
+        }     
     }
 }

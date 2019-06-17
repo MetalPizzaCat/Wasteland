@@ -1,4 +1,5 @@
-import Weapon from "./WeaponSystem/Weapon";
+import Weapon, { WeaponType } from "./WeaponSystem/Weapon";
+//import WeaponType from "./WeaponSystem/Weapon"
 import ElevatorTrigger from "./ElevatorTrigger";
 import UsableObject from "./UsableObject";
 import Item from "./Item/Item";
@@ -25,6 +26,8 @@ export default class Character extends cc.Component {
     @property
     cameraName: string = 'mainCamera';
 
+    @property(cc.Node)
+    weaponSoundDataNode: cc.Node = null;
 
     @property(cc.Node)
     cameraNode: cc.Node = null;
@@ -99,6 +102,7 @@ export default class Character extends cc.Component {
         
         if (this.getComponent(ObjectWithInventory).items[this.getComponent(ObjectWithInventory).selectedItemIndex].type == "Weapon") {
             this.weapon = this.getComponent(ObjectWithInventory).items[this.getComponent(ObjectWithInventory).selectedItemIndex] as Weapon;
+            this.weapon.weaponSoundDataNode = this.node.getComponent(ObjectWithInventory).itemSoundDataNode;
 
             if (this.weaponNode == null) {
 
@@ -133,10 +137,16 @@ export default class Character extends cc.Component {
         cc.director.getScene().getChildByName("Canvas").on('mousedown', this.onMouseDown, this);
 
         this.node.on('damage', this.onDamage, this);
+
+        this.node.on('secondaryendreload', this.onWeaponSecondaryFireEndReloading, this);
+
+        this.node.on('primaryendreload', this.onWeaponPrimaryFireEndReloading, this);
     }
 
     jump(): void {
-        this.rigidBody.applyLinearImpulse(cc.v2(0, 2000), cc.v2(this.node.getPosition().x + 10, this.node.getPosition().y + 78), true);
+        if (this.isOnTheGround()) {
+            this.rigidBody.applyLinearImpulse(cc.v2(0, 2000), cc.v2(this.node.getPosition().x + 10, this.node.getPosition().y + 78), true);
+        }
     }
 
     onMouseDown(event: cc.Event.EventMouse) {
@@ -248,6 +258,29 @@ export default class Character extends cc.Component {
         else if (_event.keyCode == cc.macro.KEY.r) {
             if (this.weapon.PrimaryAmmoLeftInTheClip != this.weapon.PrimaryAmmoPerClip) {
                 this.weapon.primaryReload(this.node);
+
+                let armature: dragonBones.Armature = this.node.getComponent(dragonBones.ArmatureDisplay).armature();
+
+                if (this.weapon.type == WeaponType.Melee) {
+                    //armature.animation.play("nameofmeleereload");
+                    cc.log("reload " + WeaponType.Melee);
+                }
+
+                else if (this.weapon.type == WeaponType.Pistol) {
+                   // armature.animation.play("nameofPistolreload");
+                    cc.log("reload " + WeaponType.Pistol);
+                }
+
+                else if (this.weapon.type == WeaponType.Rifle) {
+                    //armature.animation.play("nameofRiflereload");
+                    cc.log("reload " + WeaponType.Rifle);
+                }
+
+                else if (this.weapon.type == WeaponType.Shotgun) {
+                   // armature.animation.play("nameofShotgunreload");
+                    cc.log("reload " + WeaponType.Shotgun);
+                }
+
             }
         }
         else if (_event.keyCode == cc.macro.KEY.space) {
@@ -277,28 +310,33 @@ export default class Character extends cc.Component {
     isOnTheGround(): boolean {
         if (cc.director.getPhysicsManager().enabled != true) { cc.director.getPhysicsManager().enabled = true; }
         if (this.node.getComponent(cc.PhysicsBoxCollider) != null) {
-            var rayResult = cc.director.getPhysicsManager().rayCast(this.node.getPosition(), cc.v2(this.node.getPosition().x, this.node.getPosition().y + this.node.getComponent(cc.PhysicsBoxCollider).size.height - this.node.getComponent(cc.PhysicsBoxCollider).offset.y + 1), cc.RayCastType.Any);
+            let rayResult = cc.director.getPhysicsManager().rayCast(this.node.getPosition(), cc.v2(this.node.getPosition().x, this.node.getPosition().y - this.node.getComponent(cc.PhysicsBoxCollider).size.height + this.node.getComponent(cc.PhysicsBoxCollider).offset.y + 1), cc.RayCastType.Any);
+
+            for (var i = 0; i < rayResult.length; i++) {
+                var collider = rayResult[i].collider;
+                if (rayResult[i].collider.body != null) { return true; }
+            }
         }
         else {
+            let rayResult = cc.director.getPhysicsManager().rayCast(this.node.getPosition(), cc.v2(this.node.getPosition().x, this.node.getPosition().y + 1), cc.RayCastType.Any);
 
-            var rayResult = cc.director.getPhysicsManager().rayCast(this.node.getPosition(), cc.v2(this.node.getPosition().x, this.node.getPosition().y + 1), cc.RayCastType.Any);
+            for (var i = 0; i < rayResult.length; i++) {
+                var collider = rayResult[i].collider;
+                if (rayResult[i].collider.body != null) { return true; }
+            }
         }
-        var rayResult = cc.director.getPhysicsManager().rayCast(this.node.getPosition(), cc.v2(this.node.getPosition().x, this.node.getPosition().y), cc.RayCastType.Any);
+        //var rayResult = cc.director.getPhysicsManager().rayCast(this.node.getPosition(), cc.v2(this.node.getPosition().x, this.node.getPosition().y), cc.RayCastType.Any);
 
-        for (var i = 0; i < rayResult.length; i++) {
-            var collider = rayResult[i].collider;
-            if (rayResult[i].collider.body != null) { return true; }
-        }
+       
         return false;
     }
 
     // will be called once when two colliders begin to contact
     onBeginContact(contact, selfCollider, otherCollider) {
-        if (otherCollider.node.getComponent(Weapon) != null && otherCollider.node.getComponent(Weapon).canBePickedUp) {
-
-            this.getComponent(ObjectWithInventory).addItem(otherCollider.node.getComponent(Weapon).itemName, otherCollider.node.getComponent(Weapon).amount);
+        if (otherCollider.node.getComponent(Item) != null && otherCollider.node.getComponent(Item).canBePickedUp && cc.isValid(otherCollider.node)) {
+            this.getComponent(ObjectWithInventory).addItem(otherCollider.node.getComponent(Item).itemName, otherCollider.node.getComponent(Item).amount);      
             otherCollider.node.destroy();
-            // otherCollider.node.destroy();
+            otherCollider.destroy();
         }
         else if (otherCollider.node.getComponent(UsableObject) != null) {
             var shouldAdd: boolean = true;
@@ -309,10 +347,7 @@ export default class Character extends cc.Component {
             }
             if (shouldAdd) { this.collidingNodes.push(otherCollider.node); }
         }
-        else if (otherCollider.node.getComponent(Item) != null && otherCollider.node.getComponent(Item).canBePickedUp) {
-            this.getComponent(ObjectWithInventory).addItem(otherCollider.node.getComponent(Item).itemName, otherCollider.node.getComponent(Item).amount);
-            otherCollider.node.destroy();
-        }
+        
     }
 
     // will be called once when the contact between two colliders just about to end.
@@ -336,6 +371,11 @@ export default class Character extends cc.Component {
     onPostSolve(contact, selfCollider, otherCollider) {
     }
 
+    onWeaponPrimaryFireEndReloading() {
+    }
+
+    onWeaponSecondaryFireEndReloading() { cc.log("Finished - Secondary");}
+
     onDamage(damager: cc.Node, amount: number): void {
         
         this.health -= amount;
@@ -343,7 +383,14 @@ export default class Character extends cc.Component {
     }
 
     update(dt) {
-        
+
+        let armature: dragonBones.Armature = this.node.getComponent(dragonBones.ArmatureDisplay).armature();
+        let pos: cc.Vec2 = cc.v2(armature.getBone("hand_right").global.x, -armature.getBone("hand_right").global.y);
+
+        if (this.weaponNode != null) {
+            this.weaponNode.setPosition(pos);
+        }
+
         //cc.director.getScene().getChildByName("Canvas").getChildByName(this.cameraName).setPosition(this.node.getPosition().sub(cc.director.getScene().getChildByName("Canvas").position));
         if (this.cameraNode != null) {
             this.cameraNode.setPosition(this.node.getPosition().sub(cc.director.getScene().getChildByName("Canvas").position));

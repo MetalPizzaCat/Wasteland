@@ -22,7 +22,7 @@ class ItemData {
     @property({
         min: 1
     })
-    amount: number = 0;
+    amount: number = 1;
 }
 
 /*
@@ -135,28 +135,32 @@ export default class ObjectWithInventory extends cc.Component {
     }
 
     dropButtonCallback(event, customEventData) {
-        
 
-        let itemNode = new cc.Node(this.items[this.selectedItemIndex].itemName);
-        itemNode.addComponent(Item);
-        itemNode.getComponent(Item).itemName = this.items[this.selectedItemIndex].itemName;
-        itemNode.getComponent(Item).amount = 1;
-        itemNode.addComponent(cc.Sprite);
-        itemNode.getComponent(cc.Sprite).spriteFrame = new cc.SpriteFrame(this.items[this.selectedItemIndex].imageName);
-        itemNode.addComponent(cc.RigidBody);
-        itemNode.addComponent(cc.PhysicsBoxCollider);
+        if (this.items[this.selectedItemIndex] != null) {
+            let itemNode = new cc.Node(this.items[this.selectedItemIndex].itemName);
+            itemNode.addComponent(Item);
+            itemNode.getComponent(Item).itemName = this.items[this.selectedItemIndex].itemName;
+            itemNode.getComponent(Item).amount = 1;
+            itemNode.addComponent(cc.Sprite);
+            itemNode.getComponent(cc.Sprite).spriteFrame = new cc.SpriteFrame(this.items[this.selectedItemIndex].imageName);
+            itemNode.addComponent(cc.RigidBody);
+            itemNode.addComponent(cc.PhysicsBoxCollider);
 
-        itemNode.parent = cc.director.getScene();
-        itemNode.setPosition(this.node.getPosition().add(cc.v2(200, 0)));
-        itemNode.getComponent(cc.PhysicsBoxCollider).size = cc.size(itemNode.getComponent(cc.Sprite).spriteFrame.getOriginalSize().width, itemNode.getComponent(cc.Sprite).spriteFrame.getOriginalSize().height);
-        itemNode.getComponent(cc.PhysicsBoxCollider).apply();
+            itemNode.parent = cc.director.getScene();
+            itemNode.setPosition(this.node.getPosition().add(cc.v2(200, 0)));
+            itemNode.getComponent(cc.PhysicsBoxCollider).size = cc.size(itemNode.getComponent(cc.Sprite).spriteFrame.getOriginalSize().width, itemNode.getComponent(cc.Sprite).spriteFrame.getOriginalSize().height);
+            itemNode.getComponent(cc.PhysicsBoxCollider).apply();
 
-        this.removeItem(this.items[this.selectedItemIndex].itemName, 1);
 
-        for (let i: number = 0; i < this.itemSoundDataNode.getComponent(ItemSoundDataScript).sounds.length; i++) {
-            if (this.itemSoundDataNode.getComponent(ItemSoundDataScript).sounds[i].name == this.items[this.selectedItemIndex].itemName) {
-                cc.audioEngine.play(this.itemSoundDataNode.getComponent(ItemSoundDataScript).sounds[i].dropSound[0], false, 1);
+
+            for (let i: number = 0; i < this.itemSoundDataNode.getComponent(ItemSoundDataScript).sounds.length; i++) {
+
+                if (this.itemSoundDataNode.getComponent(ItemSoundDataScript).sounds[i].name == this.items[this.selectedItemIndex].itemName) {
+                    cc.audioEngine.play(this.itemSoundDataNode.getComponent(ItemSoundDataScript).sounds[i].dropSound[0], false, 1);
+                }
+
             }
+            this.removeItem(this.items[this.selectedItemIndex].itemName, 1);
         }
     }
 
@@ -198,11 +202,13 @@ export default class ObjectWithInventory extends cc.Component {
     addItem(name: string, amount: number) {
         amount = Math.round(amount);
         if (amount > 0) {
-            for (let i: number = 1; i < this.items.length; i++) {
-                if (this.items[i].itemName == name) {
-                    this.items[i].amount += amount;
-                    this.refreshInventoryNode();
-                    return;
+            for (let i: number = 0; i < this.items.length; i++) {
+                if (this.items[i] != null) {
+                    if (this.items[i].itemName == name) {
+                        this.items[i].amount += amount;
+                        this.refreshInventoryNode();
+                        return;
+                    }
                 }
             }
             let it = new Item();
@@ -219,7 +225,7 @@ export default class ObjectWithInventory extends cc.Component {
                 }
             }
             else {
-                cc.log("it didn't work");
+               //cc.log("it didn't work");
             }
         }
         else {
@@ -328,8 +334,9 @@ export default class ObjectWithInventory extends cc.Component {
                         
 
                         if (this.otherInventory != null) {
-                            this.removeItem(this.items[index].itemName, 1);
                             this.otherInventory.addItem(this.items[index].itemName, 1);
+                            this.removeItem(this.items[index].itemName, 1);
+                          
                         }
                         else {
                             this.selectedItemIndex = index;
@@ -346,7 +353,7 @@ export default class ObjectWithInventory extends cc.Component {
             }
 
             else {
-                cc.log("item at " + i + " is null");
+                //cc.log("item at " + i + " is null");
             }
         }
     }

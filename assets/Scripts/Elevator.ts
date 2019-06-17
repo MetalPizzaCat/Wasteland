@@ -107,9 +107,12 @@ export default class Elevator extends cc.Component {
 
         this.stopSoundAudioId = cc.audioEngine.play(this.stopSound, false, 1);
     }
+    beUsedByButton(node: cc.Node) {
+        this.startMovement();
+    }
 
     start() {
-        
+        this.node.on('usedbybutton', this.beUsedByButton, this);
     }
 
     update(dt) {

@@ -13,16 +13,43 @@ const {ccclass, property} = cc._decorator;
 @ccclass
 export default class Projectile extends cc.Component {
 
-    @property({min:0})
+    @property({ min: 0 })
     damage: number = 0;
+
+    @property({})
+    destroyOnTouch: boolean = false;
+
+    @property({ min: 0.0, tooltip: "How much time will pass before node will be destroyed. 0.0 means infinite" })
+    lifeTime: number = 0.0;
+
+    livedTime: number = 0.0;
 
     // LIFE-CYCLE CALLBACKS:
 
     // onLoad () {}
 
-    start () {
+    start() {
 
     }
 
-    // update (dt) {}
+    onBeginContact(contact, selfCollider, otherCollider) {
+        if ((otherCollider as cc.PhysicsCollider).sensor != true) {
+            otherCollider.node.emit('damage', this.node, this.damage);
+            if (this.destroyOnTouch) {
+                this.node.destroy();
+            }
+        }
+    }
+
+    update(dt) {
+        if (this.lifeTime != 0.0 && !this.destroyOnTouch) {
+            this.livedTime += dt;
+            if (this.livedTime >= this.lifeTime) {
+                if (this.node != null) {
+                    this.node.destroy();
+                   
+                }
+            }
+        }
+    }
 }
