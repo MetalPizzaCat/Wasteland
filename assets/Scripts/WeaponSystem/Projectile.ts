@@ -24,6 +24,8 @@ export default class Projectile extends cc.Component {
 
     livedTime: number = 0.0;
 
+    parentNode: cc.Node = null;
+
     // LIFE-CYCLE CALLBACKS:
 
     // onLoad () {}
@@ -35,7 +37,7 @@ export default class Projectile extends cc.Component {
     onBeginContact(contact, selfCollider, otherCollider) {
         if ((otherCollider as cc.PhysicsCollider).sensor != true) {
             otherCollider.node.emit('damage', this.node, this.damage);
-            if (this.destroyOnTouch) {
+            if (this.destroyOnTouch && otherCollider.node != this.parentNode) {
                 this.node.destroy();
             }
         }

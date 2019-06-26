@@ -53,18 +53,23 @@ export default class ObjectWithInventory extends cc.Component {
     itemsData: [ItemData] = [null];
 
 
-    items: [Item] = [null];
+    //items: [Item] = [null];
+
+    items: [any] = [null];
 
     @property(cc.Node)
     itemSoundDataNode: cc.Node = null;
 
-    
+
     //@property(ObjectWithInventory)
     /*
      *if you want to safely move objects from one inventory to another assign other one to this field
      *
      * */
     otherInventory: ObjectWithInventory = null;
+
+    @property(cc.Node)
+    sliderNode: cc.Node = null;
 
     //parent node used to display inventory
     @property(cc.Node)
@@ -83,10 +88,11 @@ export default class ObjectWithInventory extends cc.Component {
 
     selectedItemIndex: number = 0;
 
+    itemMoveSelectedItemIndex: number = 0;    
+
+    itemDataTable: any;
+
     // LIFE-CYCLE CALLBACKS:
-
-    itemDataTable;
-
     onLoad() {
         var url = cc.url.raw('resources/DataTabels/items.json')
         cc.loader.load(url, function (err, itemArray) {
@@ -127,7 +133,7 @@ export default class ObjectWithInventory extends cc.Component {
     }
 
     start() {
-       
+
     }
 
     itemButtonCallback(event, customEventData) {
@@ -135,12 +141,16 @@ export default class ObjectWithInventory extends cc.Component {
     }
 
     dropButtonCallback(event, customEventData) {
+        let num: number;
+
+        if (this.sliderNode != null && this.items[this.selectedItemIndex] != null) { num = Math.round(this.items[this.selectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress); }
+        else { num = 0; }
 
         if (this.items[this.selectedItemIndex] != null) {
             let itemNode = new cc.Node(this.items[this.selectedItemIndex].itemName);
             itemNode.addComponent(Item);
             itemNode.getComponent(Item).itemName = this.items[this.selectedItemIndex].itemName;
-            itemNode.getComponent(Item).amount = 1;
+            itemNode.getComponent(Item).amount = num;
             itemNode.addComponent(cc.Sprite);
             itemNode.getComponent(cc.Sprite).spriteFrame = new cc.SpriteFrame(this.items[this.selectedItemIndex].imageName);
             itemNode.addComponent(cc.RigidBody);
@@ -160,7 +170,7 @@ export default class ObjectWithInventory extends cc.Component {
                 }
 
             }
-            this.removeItem(this.items[this.selectedItemIndex].itemName, 1);
+            this.removeItem(this.items[this.selectedItemIndex].itemName, num);
         }
     }
 
@@ -184,7 +194,7 @@ export default class ObjectWithInventory extends cc.Component {
                     else if (this.items[i].amount > amount) {
                         this.items[i].amount -= amount;
                         this.refreshInventoryNode();
-                     
+
                         return;
                     }
                     else {
@@ -211,22 +221,59 @@ export default class ObjectWithInventory extends cc.Component {
                     }
                 }
             }
-            let it = new Item();
-            it.itemName = name;
-            it.amount = amount;
+
+            
+
             if (this.itemDataTable != null) {
-                if (!it.loadDataForItem(this.itemDataTable)) {
-                    cc.log("Failed to load item");
-                }
-                else {
-                    this.items.push(it);
-                    this.refreshInventoryNode();
-                    return;
+                for (let u: number = 0; u < Object.keys(this.itemDataTable["json"]["items"]).length; u++) {
+                    if (this.itemDataTable["json"]["items"][u]["name"] == name) {
+                        if (this.itemDataTable["json"]["items"][u]["type"] == "Weapon") {
+                            item = new Weapon();
+                            item.itemName = name;
+                            item.amount = amount;
+                            if (!item.loadDataForItem(this.itemDataTable)) {
+                                cc.log("Failed to load item");
+                            }
+                            else {
+                                this.items.push(item);
+                                this.refreshInventoryNode();
+                                return;
+                            }
+                        }
+                        else {
+                            var item = new Item();
+                            item.itemName = name;
+                            item.amount = amount;
+
+                            if (!item.loadDataForItem(this.itemDataTable)) {
+                                cc.log("Failed to load item");
+                            }
+                            else {
+                                this.items.push(item);
+                                this.refreshInventoryNode();
+                                return;
+                            }
+                        }
+                    }
                 }
             }
-            else {
-               //cc.log("it didn't work");
-            }
+
+            //let it = new Item();
+            //it.itemName = name;
+            //it.amount = amount;
+            //if (this.itemDataTable != null) {
+            //    if (!it.loadDataForItem(this.itemDataTable)) {
+                   
+            //    }
+            //    else {
+            //        this.items.push(it);
+            //        this.refreshInventoryNode();
+            //        return;
+            //    }
+            //}
+            //else {
+            //    //cc.log("it didn't work");
+            //}
         }
         else {
             throw new RangeError("Attemp to add item to " + name + " with name " + this.name + " failed. Reason: value is less than 0");
@@ -238,15 +285,16 @@ export default class ObjectWithInventory extends cc.Component {
      * */
     activateInventory() {
         if (this.inventoryNode != null && !this.activated) {
-               
+
             if (this.items.length - 1 != this.inventoryNode.getComponent(cc.ScrollView).content.childrenCount) {
-               
+
                 this.refreshInventoryNode();
                 this.inventoryNode.setPosition(cc.v2(0, 0));
-               
+
             }
 
             this.inventoryNode.active = true;
+            if (this.sliderNode != null) { this.sliderNode.active = true; }
             this.activated = true;
             if (this.otherInventory != null) {
                 if (this.getComponent(ObjectWithInventory).inventoryNode.getChildByName("dropButton") != null) {
@@ -275,6 +323,7 @@ export default class ObjectWithInventory extends cc.Component {
         if (this.inventoryNode != null && this.activated) {
             this.inventoryNode.active = false;
             this.activated = false;
+            if (this.sliderNode != null) { this.sliderNode.active = false; }
         }
         if (this.otherInventory != null) { this.otherInventory.otherInventory = null; this.otherInventory.deactivateInventory(); this.otherInventory = null; }
     }
@@ -330,18 +379,53 @@ export default class ObjectWithInventory extends cc.Component {
 
                     this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Button).clickEvents.push(clickEventHandler);
 
+                    (this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background") as cc.Node).color = cc.Color.WHITE;
+
                     this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").on('mousedown', function (event) {
-                        
+
 
                         if (this.otherInventory != null) {
-                            this.otherInventory.addItem(this.items[index].itemName, 1);
-                            this.removeItem(this.items[index].itemName, 1);
-                          
+                            if (this.sliderNode != null) {
+                                (this as ObjectWithInventory).itemMoveSelectedItemIndex = index;
+                                this.sliderNode.getChildByName("item_slider_amount").getComponent(cc.Label).string = (Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress)).toString();
+                                (this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[index].itemName).getChildByName(this.items[index].itemName + "_background") as cc.Node).color = cc.Color.RED;
+                            }
+                            else {
+                                this.otherInventory.addItem(this.items[index].itemName, 1);
+                                this.removeItem(this.items[index].itemName, 1);
+                            }
+                        }
+                        else {
+                            this.selectedItemIndex = index;
+                            this.sliderNode.getChildByName("item_slider_amount").getComponent(cc.Label).string = (Math.round(this.items[this.selectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress)).toString();
+                            (this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[index].itemName).getChildByName(this.items[index].itemName + "_background") as cc.Node).color = cc.Color.RED;
+                        }
+
+                        { /*     if (this.items[index].amount < 10) {
+                                    (this.sliderNode as cc.Node).active = false;
+                                    this.otherInventory.addItem(this.items[index].itemName, 1);
+                                    this.removeItem(this.items[index].itemName, 1);
+                                }
+                                else {
+                                    if (this.sliderNode != null) {
+                                        (this.sliderNode as cc.Node).active = true;
+                                        (this.sliderNode as cc.Node).getChildByName("item_slider_amount").getComponent(cc.Label).string = (Math.round(this.items[index].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress)).toString();
+                                        (this.sliderNode as cc.Node).on('mousedown', function (event) {
+                                            this.getChildByName("item_slider_amount").getComponent(cc.Label).string = (Math.round(this.items[index].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress)).toString();
+                                            this.otherInventory.addItem(this.items[index].itemName, (Math.round(this.items[index].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress)).toString());
+                                        });
+                                        this.removeItem(this.items[index].itemName, (Math.round(this.items[index].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress)).toString());
+                                    }
+                                }
+                            }
+                            else {                            
+                            }
                         }
                         else {
                             this.selectedItemIndex = index;
                         }
-
+                        */
+                        }
 
                     }.bind(this, index));
 
@@ -358,11 +442,41 @@ export default class ObjectWithInventory extends cc.Component {
         }
     }
 
+    onSliderSlide() {
+        if (this.sliderNode != null) {
+            if (this.otherInventory != null && this.items[this.itemMoveSelectedItemIndex] != null) {
+                this.sliderNode.getChildByName("item_slider_amount").getComponent(cc.Label).string = (Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress)).toString();
+            }
+            else if (this.items[this.selectedItemIndex] != null) {
+                this.sliderNode.getChildByName("item_slider_amount").getComponent(cc.Label).string = (Math.round(this.items[this.selectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress)).toString();
+            }
+        }
+    }
+
+    itemMoveToTheInventory() {
+        if (this.otherInventory != null && this.sliderNode != null) {
+            this.otherInventory.addItem(this.items[this.itemMoveSelectedItemIndex].itemName, Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
+            this.removeItem(this.items[this.itemMoveSelectedItemIndex].itemName, Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
+
+        }
+    }
+
     update(dt) {
         for (let i: number = 0; i < this.items.length; i++) {
             if (this.items[i] != null) {
-               
+
                 this.items[i].manualUpdate(dt);
+                if (this.activated == true) {
+                    if (this.selectedItemIndex == i) {
+                        (this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background") as cc.Node).color = cc.Color.RED;
+                    }
+                    else if (this.itemMoveSelectedItemIndex == i && this.otherInventory != null) {
+                        (this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background") as cc.Node).color = cc.Color.RED;
+                    }
+                    else {
+                        (this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background") as cc.Node).color = cc.Color.WHITE;
+                    }
+                }
             }
         }
     }

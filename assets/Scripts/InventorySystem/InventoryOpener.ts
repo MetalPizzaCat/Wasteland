@@ -22,17 +22,21 @@ export default class InventoryOpener extends UsableObject {
 
     // onLoad () {}
     beUsed(node: cc.Node) {
-        cc.log("fuck you");
+
         if (this.node.getComponent(ObjectWithInventory) != null && node.getComponent(ObjectWithInventory) != null) {
-            cc.log(',but not now');
-            this.node.getComponent(ObjectWithInventory).otherInventory = node.getComponent(ObjectWithInventory);
-            node.getComponent(ObjectWithInventory).otherInventory = this.node.getComponent(ObjectWithInventory);
-            node.getComponent(ObjectWithInventory).activateInventory();
-            this.node.getComponent(ObjectWithInventory).activateInventory();
+            if (this.node.getComponent(ObjectWithInventory).otherInventory == null && node.getComponent(ObjectWithInventory).otherInventory == null) {
+                this.node.getComponent(ObjectWithInventory).otherInventory = node.getComponent(ObjectWithInventory);
+                node.getComponent(ObjectWithInventory).otherInventory = this.node.getComponent(ObjectWithInventory);
+                node.getComponent(ObjectWithInventory).activateInventory();
+                this.node.getComponent(ObjectWithInventory).activateInventory();
 
-            
 
-            this.node.getComponent(ObjectWithInventory).inventoryNode.setPosition((cc.v2(300, 0).sub(this.node.getPosition())).add(node.getPosition()));
+
+                //this.node.getComponent(ObjectWithInventory).inventoryNode.setPosition((cc.v2(300, 0).sub(this.node.getPosition())).add(node.getPosition()));
+
+                this.node.getComponent(ObjectWithInventory).inventoryNode.setPosition(this.node.getComponent(ObjectWithInventory).inventoryNode.convertToNodeSpaceAR(node.getPosition()).add(cc.v2(600, 0)));
+                this.node.getComponent(ObjectWithInventory).sliderNode.setPosition(this.node.getComponent(ObjectWithInventory).sliderNode.convertToNodeSpaceAR(node.getPosition()).add(cc.v2(600, 600)));
+            }
         }
     }
 

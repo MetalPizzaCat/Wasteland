@@ -18,6 +18,12 @@ import ItemData from "./InventorySystem/ObjectWithInventory";
 
 const { ccclass, property } = cc._decorator;
 
+export enum CrouchingMode {
+    NotCrouching,
+    Crouching,
+    Sliding
+}
+
 @ccclass
 export default class Character extends cc.Component {
    // @property(cc.RigidBody)
@@ -47,21 +53,21 @@ export default class Character extends cc.Component {
     @property
     dead: boolean = false;
 
+    crouchMode: CrouchingMode = CrouchingMode.NotCrouching;
+
     /**
      current weapon node
      Used to draw weapon in world
+    TODO:TODO:
      */
     protected weaponNode: cc.Node = null;
 
-    /**
-     array of weapons that is used for storing info
-     TODO: REPLACE WITH "ITEM" ARRAY
-     */
     weapon: Weapon = null;
 
     //items: [Item] = [null];
 
     protected currentWeaponId: number = 1;
+
     @property({
         type: [cc.AudioClip]
     })
@@ -87,6 +93,10 @@ export default class Character extends cc.Component {
 
     useKeyPressed: boolean = false;
 
+    crouchButtonDown: boolean = false;
+
+    isPaused: boolean = false;
+
     dropButtonCallback(event, customEventData) {
         if (this.weaponNode != null) {
             //if item that was selected is being droped we set this.weapon to null
@@ -101,9 +111,12 @@ export default class Character extends cc.Component {
     selectWeaponButtonCallback(event, customEventData) {
         
         if (this.getComponent(ObjectWithInventory).items[this.getComponent(ObjectWithInventory).selectedItemIndex].type == "Weapon") {
-            this.weapon = this.getComponent(ObjectWithInventory).items[this.getComponent(ObjectWithInventory).selectedItemIndex] as Weapon;
-            this.weapon.weaponSoundDataNode = this.node.getComponent(ObjectWithInventory).itemSoundDataNode;
+           // this.getComponent(ObjectWithInventory).items[this.getComponent(ObjectWithInventory).selectedItemIndex].loadDataForItem(this.node.getComponent(ObjectWithInventory).itemDataTable);
 
+            this.weapon = this.getComponent(ObjectWithInventory).items[this.getComponent(ObjectWithInventory).selectedItemIndex] as Weapon;
+            this.weapon.loadDataForItem(this.node.getComponent(ObjectWithInventory).itemDataTable)
+            this.weapon.weaponSoundDataNode = this.node.getComponent(ObjectWithInventory).itemSoundDataNode;
+          
             if (this.weaponNode == null) {
 
                 //create node for displaying weapon
@@ -140,12 +153,68 @@ export default class Character extends cc.Component {
 
         this.node.on('secondaryendreload', this.onWeaponSecondaryFireEndReloading, this);
 
+        this.node.on(' startcutscene', this.onCutsceneStart, this);
+
         this.node.on('primaryendreload', this.onWeaponPrimaryFireEndReloading, this);
     }
 
     jump(): void {
-        if (this.isOnTheGround()) {
-            this.rigidBody.applyLinearImpulse(cc.v2(0, 2000), cc.v2(this.node.getPosition().x + 10, this.node.getPosition().y + 78), true);
+        if (this.isOnTheGround() && this.crouchMode != CrouchingMode.Sliding && this.crouchMode != CrouchingMode.Crouching) {
+            this.rigidBody.applyLinearImpulse(cc.v2(0, 15000), cc.v2(this.node.getPosition().x + 10, this.node.getPosition().y + 78), true);
+
+            if (Math.round(this.rigidBody.linearVelocity.x) == 0.0) {
+               
+                let armature: dragonBones.Armature = this.node.getComponent(dragonBones.ArmatureDisplay).armature();
+                armature.animation.play("jump_up", 1);
+            }
+        }
+    }
+
+    crouch() {
+        if (this.isOnTheGround() && this.crouchMode == CrouchingMode.NotCrouching/*you can not crouch if you already crouching*/) {
+            if (Math.round(this.rigidBody.linearVelocity.x) == 0.0) {
+                this.crouchMode = CrouchingMode.Crouching;
+                (this.node.getComponent(dragonBones.ArmatureDisplay).armature() as dragonBones.Armature).animation.play("crouch_down", 1);
+            }
+            else {
+                this.crouchMode = CrouchingMode.Sliding;
+                (this.node.getComponent(dragonBones.ArmatureDisplay).armature() as dragonBones.Armature).animation.play("belly_sliding_start", 1);
+            }
+            if (!(this.node.getComponent(dragonBones.ArmatureDisplay).armature() as dragonBones.Armature).flipX) {
+                //->
+
+                if (this.getComponent(cc.PhysicsBoxCollider) != null) {
+
+                    this.getComponent(cc.PhysicsBoxCollider).offset.x = 71;
+                    this.getComponent(cc.PhysicsBoxCollider).offset.y = 54;
+                    this.getComponent(cc.PhysicsBoxCollider).size.height = 100;
+                    this.getComponent(cc.PhysicsBoxCollider).size.width = 145;
+                    this.getComponent(cc.PhysicsBoxCollider).apply();
+                }
+            }
+            else {
+
+                //<-
+                if (this.getComponent(cc.PhysicsBoxCollider) != null) {
+
+                    this.getComponent(cc.PhysicsBoxCollider).offset.x = -71;
+                    this.getComponent(cc.PhysicsBoxCollider).offset.y = 54;
+                    this.getComponent(cc.PhysicsBoxCollider).size.height = 100;
+                    this.getComponent(cc.PhysicsBoxCollider).size.width = 145;
+                    this.getComponent(cc.PhysicsBoxCollider).apply();
+                }
+            }
+        }
+    }
+
+    unCrouch() {
+        this.crouchMode = CrouchingMode.NotCrouching;
+        if (this.getComponent(cc.PhysicsBoxCollider) != null) {
+            this.getComponent(cc.PhysicsBoxCollider).offset.x = 0;
+            this.getComponent(cc.PhysicsBoxCollider).offset.y = 127;
+            this.getComponent(cc.PhysicsBoxCollider).size.height = 145;
+            this.getComponent(cc.PhysicsBoxCollider).size.width = 100;
+            this.getComponent(cc.PhysicsBoxCollider).apply();
         }
     }
 
@@ -159,15 +228,15 @@ export default class Character extends cc.Component {
     onMouseMove(event: cc.Event.EventMouse) {
         
         let armature: dragonBones.Armature = this.node.getComponent(dragonBones.ArmatureDisplay).armature();
-        let pos: cc.Vec2 = cc.v2(armature.getBone("hand_right").global.x, -armature.getBone("hand_right").global.y);
+       // let pos: cc.Vec2 = cc.v2(armature.getBone("hand_right").global.x, -armature.getBone("hand_right").global.y);
         
 
       
         let angle = Math.atan2(event.getLocation().y - this.node.getPosition().y, event.getLocation().x - this.node.getPosition().x);
-        armature.getBone("neck").offset.rotation = angle;
+        armature.getBone("Body_3").offset.rotation = angle;
         
         if (this.weaponNode != null) {
-            this.weaponNode.setPosition(pos);
+           // this.weaponNode.setPosition(pos);
             
             this.weaponNode.angle = angle;
         }
@@ -178,6 +247,7 @@ export default class Character extends cc.Component {
 
     onKeyUp(_event: cc.Event.EventKeyboard) {
         if (_event.keyCode == cc.macro.KEY.a) {
+
             this.rigidBody.linearVelocity.x = 0;
             this.movingLeft = false;
         }
@@ -197,6 +267,13 @@ export default class Character extends cc.Component {
 
             this.node.getComponent(ObjectWithInventory).deactivateInventory();
         }
+        else if (_event.keyCode == cc.macro.KEY.ctrl) {
+            
+        }
+        else if (_event.keyCode == cc.macro.KEY.s) {
+            this.crouchButtonDown = false;
+            this.unCrouch();
+        }
        
     }
 
@@ -205,7 +282,7 @@ export default class Character extends cc.Component {
     onKeyDown(_event: cc.Event.EventKeyboard) {
         if (_event.keyCode == cc.macro.KEY.w) {
             if (this.isOnTheGround() == true) { this.jump(); }
-            this.jump();
+            
         }
         else if (_event.keyCode == cc.macro.KEY.a) {
             this.movingLeft = true;
@@ -213,6 +290,10 @@ export default class Character extends cc.Component {
 
         else if (_event.keyCode == cc.macro.KEY.d) {
             this.movingRight = true;
+        }
+        else if (_event.keyCode == cc.macro.KEY.s) {
+            this.crouchButtonDown = true;
+            this.crouch();
         }
 
         else if (_event.keyCode == cc.macro.KEY.e) {
@@ -256,10 +337,23 @@ export default class Character extends cc.Component {
 
         }
         else if (_event.keyCode == cc.macro.KEY.r) {
-            if (this.weapon.PrimaryAmmoLeftInTheClip != this.weapon.PrimaryAmmoPerClip) {
+            if (this.weapon.PrimaryAmmoLeftInTheClip != this.weapon.PrimaryAmmoPerClip && this.crouchMode != CrouchingMode.Sliding && this.isOnTheGround()) {
                 this.weapon.primaryReload(this.node);
 
                 let armature: dragonBones.Armature = this.node.getComponent(dragonBones.ArmatureDisplay).armature();
+                if (this.crouchMode == CrouchingMode.Crouching) {
+                    armature.animation.play("crouch_reload", 1);
+                }
+                else if (this.crouchMode == CrouchingMode.NotCrouching) {
+                    if (Math.round(this.rigidBody.linearVelocity.x) != 0.0) {
+                        armature.animation.play("run_reload",1);
+                    }
+                    else {
+                        armature.animation.play("idle_reload",1);
+                    }
+                   
+                }
+                
 
                 if (this.weapon.type == WeaponType.Melee) {
                     //armature.animation.play("nameofmeleereload");
@@ -285,10 +379,45 @@ export default class Character extends cc.Component {
         }
         else if (_event.keyCode == cc.macro.KEY.space) {
            // cc.audioEngine.play(this.sound[0], false, 1);
-            if (this.weaponNode != null && this.weapon != null) {
+            let armature: dragonBones.Armature = this.node.getComponent(dragonBones.ArmatureDisplay).armature();
+           
+            if (this.weaponNode != null && this.weapon != null) {        
+                
+                if (armature.flipX) {
+                    if (this.weapon.Fire(cc.v2(armature.getBone("gun").global.x + this.node.getPosition().x - 20, -armature.getBone("gun").global.y + this.node.getPosition().y), 180, this.node)) {
 
-                this.weapon.Fire(cc.v2(this.weaponNode.getPosition().x + this.node.getPosition().x, this.weaponNode.getPosition().y + this.node.getPosition().y), 0, this.node);
+
+                        if (Math.round(this.rigidBody.linearVelocity.x) != 0.0) {
+                            if (this.crouchMode == CrouchingMode.Sliding) { armature.animation.play("belly_sliding_shooting", 1); }
+                            else { armature.animation.play("run_shooting_forward", 1); }
+
+                        }
+                        else {
+                            if (this.crouchMode == CrouchingMode.Crouching) { armature.animation.play("crouch_shooting", 1); }
+                            { armature.animation.play("idle_shooting_forward", 1); }
+
+                        }
+                    }
+                }
+                else {
+                    if (this.weapon.Fire(cc.v2(armature.getBone("gun").global.x + this.node.getPosition().x + 20, -armature.getBone("gun").global.y + this.node.getPosition().y), 0, this.node)) {
+
+
+                        if (Math.round(this.rigidBody.linearVelocity.x) != 0.0) {
+                            if (this.crouchMode == CrouchingMode.Sliding) { armature.animation.play("belly_sliding_shooting", 1); }
+                            else { armature.animation.play("run_shooting_forward", 1); }
+
+                        }
+                        else {
+                            if (this.crouchMode == CrouchingMode.Crouching) { armature.animation.play("crouch_shooting", 1); }
+                            { armature.animation.play("idle_shooting_forward", 1); }
+
+                        }
+                    }
+                }
             }
+
+
         }
     
         else if (_event.keyCode == cc.macro.KEY.tab) {
@@ -298,10 +427,14 @@ export default class Character extends cc.Component {
            
         }
         if (this.movingLeft) {
-            this.rigidBody.applyLinearImpulse(cc.v2(-500, 0), cc.v2(this.node.getPosition().x, this.node.getPosition().y), true);
+            if (this.crouchMode != CrouchingMode.Crouching) {
+                this.rigidBody.applyLinearImpulse(cc.v2(-2000 - this.rigidBody.linearVelocity.x, 0), cc.v2(this.node.getPosition().x, this.node.getPosition().y), true);
+            }
         }
         if (this.movingRight) {
-            this.rigidBody.applyLinearImpulse(cc.v2(500, 0), cc.v2(this.node.getPosition().x, this.node.getPosition().y), true);
+            if (this.crouchMode != CrouchingMode.Crouching) {
+                this.rigidBody.applyLinearImpulse(cc.v2(2000 - this.rigidBody.linearVelocity.x, 0), cc.v2(this.node.getPosition().x, this.node.getPosition().y), true);
+            }
         }
 
     }
@@ -382,16 +515,60 @@ export default class Character extends cc.Component {
         if (this.health < 0) { this.health = 0; this.dead = true; }
     }
 
+    onCutsceneStart() {
+        this.isPaused = true;
+    }
+
+    onCutsceneEnd() {
+
+    }
+
     update(dt) {
 
         let armature: dragonBones.Armature = this.node.getComponent(dragonBones.ArmatureDisplay).armature();
-        let pos: cc.Vec2 = cc.v2(armature.getBone("hand_right").global.x, -armature.getBone("hand_right").global.y);
+        //let pos: cc.Vec2 = cc.v2(armature.getBone("hand_right").global.x, -armature.getBone("hand_right").global.y);
 
-        if (this.weaponNode != null) {
-            this.weaponNode.setPosition(pos);
-        }
+        //if (this.weaponNode != null) {
+        //    this.weaponNode.setPosition(pos);
+        //}
 
         //cc.director.getScene().getChildByName("Canvas").getChildByName(this.cameraName).setPosition(this.node.getPosition().sub(cc.director.getScene().getChildByName("Canvas").position));
+
+        if (!this.isOnTheGround()) {
+            if (!(armature.animation.lastAnimationName == "jump_up" && armature.animation.isPlaying) && armature.animation.lastAnimationName != "jump_fall") { armature.animation.play("jump_fall"); }
+            if (this.crouchMode == CrouchingMode.Sliding || this.crouchMode == CrouchingMode.Crouching) {
+                this.unCrouch();
+            }
+        }
+        else if (this.getComponent(cc.RigidBody) != null && this.getComponent(dragonBones.ArmatureDisplay) != null) {
+            if (this.crouchButtonDown) { this.crouch(); }
+            if (Math.round(this.rigidBody.linearVelocity.x) != 0.0) {
+                if (this.crouchMode == CrouchingMode.Sliding) {
+                    if (!(armature.animation.lastAnimationName == "belly_sliding_shooting" && armature.animation.isPlaying) && armature.animation.lastAnimationName != "belly_sliding") { armature.animation.play("belly_sliding"); }
+                }
+                else {
+                    if (!((armature.animation.lastAnimationName == "run_shooting_forward" || armature.animation.lastAnimationName == "run_reload") && armature.animation.isPlaying) && armature.animation.lastAnimationName != "run") { armature.animation.play("run"); }
+                }
+
+                if (this.getComponent(cc.RigidBody).linearVelocity.x > 0) {
+                    armature.flipX = false;
+                }
+                else if (this.getComponent(cc.RigidBody).linearVelocity.x < 0) {
+                    armature.flipX = true;
+                }
+            }
+            else if (Math.round(this.rigidBody.linearVelocity.x) == 0.0) {
+                if (this.crouchMode == CrouchingMode.Sliding) { this.crouchMode = CrouchingMode.Crouching }
+                if (this.crouchMode == CrouchingMode.Crouching) {
+                    if (!((armature.animation.lastAnimationName == "crouch_shooting" || armature.animation.lastAnimationName == "crouch_reload") && armature.animation.isPlaying) && armature.animation.lastAnimationName != "crouch_idle") { armature.animation.play("crouch_idle"); }
+                }
+
+                else {
+                    if (!((armature.animation.lastAnimationName == "idle_shooting_forward" || armature.animation.lastAnimationName == "idle_reload") && armature.animation.isPlaying) && armature.animation.lastAnimationName != "idle") { armature.animation.play("idle"); }
+                }
+            }
+        }
+
         if (this.cameraNode != null) {
             this.cameraNode.setPosition(this.node.getPosition().sub(cc.director.getScene().getChildByName("Canvas").position));
         }
@@ -412,7 +589,7 @@ export default class Character extends cc.Component {
                 this.healthNode.getComponent(cc.Label).string = this.health.toString();
             }
         }
-
+        
         if (this.primaryAmmoLeftTotalNode != null) {
             if (this.primaryAmmoLeftTotalNode.getComponent(cc.Label) != null) {
                 if (this.weapon != null) {

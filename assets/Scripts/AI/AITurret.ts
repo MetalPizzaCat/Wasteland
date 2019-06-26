@@ -1,5 +1,5 @@
 import Character from "./../Character";
-import Weapon from "../WeaponSystem/Weapon";
+import Weapon, { WeaponType } from "../WeaponSystem/Weapon";
 import ObjectWithInventory from "../InventorySystem/ObjectWithInventory";
 
 // Learn TypeScript:
@@ -27,6 +27,11 @@ export enum CellingTurretState {
     Disabled
 }
 
+export enum CellingTurretWeaponType {
+    Flametrower = 1,
+    Minigun
+
+}
 
 @ccclass
 export default class AITurret extends cc.Component {
@@ -39,7 +44,10 @@ export default class AITurret extends cc.Component {
     @property({ type: cc.Enum(CellingTurretState) })
     state: CellingTurretState = CellingTurretState.ClosedIdle;
 
-    @property
+    @property({ type: cc.Enum(CellingTurretWeaponType) })
+    weaponType: CellingTurretWeaponType = CellingTurretWeaponType.Minigun;
+
+
     weaponName: string = "";
 
     @property({ tooltip: "use ammo from inventory or not" })
@@ -87,8 +95,23 @@ export default class AITurret extends cc.Component {
     }
     start() {
         //cc.log("Deactivate over time " + this.timeBeforeDeactivating);
+
+        let armature: dragonBones.Armature = this.getComponent(dragonBones.ArmatureDisplay).armature();
+        armature.getSlot("carabine").displayIndex = this.weaponType;
+
+        //dragonBones.CCFactory.prototype.replaceSlotDisplay()
+
+        //armature.getSlot("carabine").
+
+        
+        cc.log(dragonBones.CCFactory.getInstance().replaceSlotDisplay("celling_turret", armature.name, "carabine", "minigun", armature.getSlot("carabine")));
+
+        //dragonBones.CCFactory.prototype.getDragonBonesData
+
+        cc.log(WeaponType[this.weaponType]);
+        
         this.weapon = new Weapon();
-        this.weapon.itemName = this.weaponName;
+        this.weapon.itemName = "Minigun";
         this.weapon.amount = 1;
         this.weapon.weaponSoundDataNode = this.weaponSoundDataNode;
 
@@ -101,7 +124,16 @@ export default class AITurret extends cc.Component {
             throw new Error("Item data in ObjectWithInventory component is null");
         }
 
+
+        let wpn_node = new cc.Node();
+        wpn_node.addComponent(cc.Sprite).spriteFrame = new cc.SpriteFrame(this.weapon.imageName);
+
+        armature.getSlot("carabine").display = wpn_node;
+
+        //armature.getSlot("carabine").display = new cc.SpriteFrame(this.weapon.imageName);
+
         this.node.on('usedbybutton', this.beUsedByButton, this);
+        
     }
 
     activate() {
@@ -148,6 +180,7 @@ export default class AITurret extends cc.Component {
 
 
     disable() {
+        this.deactivate();
         this.state = CellingTurretState.Disabled;
     }
 
@@ -156,13 +189,15 @@ export default class AITurret extends cc.Component {
     }
 
     onBeginContact(contact, selfCollider, otherCollider) {
-        if (otherCollider.node.getComponent(Character) != null) {
-            this.target = otherCollider.node;
-            if (this.canSeeTarget()) {
-                if (this.state != CellingTurretState.OpenedIdle) { this.timeLeft = 0.0; this.activate(); }
-            }
-            else {
+        if (this.state != CellingTurretState.Disabled) {
+            if (otherCollider.node.getComponent(Character) != null) {
+                this.target = otherCollider.node;
+                if (this.canSeeTarget()) {
+                    if (this.state != CellingTurretState.OpenedIdle) { this.timeLeft = 0.0; this.activate(); }
+                }
+                else {
 
+                }
             }
         }
     }
@@ -174,7 +209,7 @@ export default class AITurret extends cc.Component {
     }
 
     beUsedByButton(node: cc.Node) {
-
+        this.disable();
     }
 
     canSeeTarget(): boolean {
@@ -183,55 +218,61 @@ export default class AITurret extends cc.Component {
             var rayResult = cc.director.getPhysicsManager().rayCast(this.node.getPosition(), this.target.getPosition(), cc.RayCastType.Any);
             for (let i: number = 0; i < rayResult.length; i++) {
                 if (rayResult[i].collider.node == this.target) {
-
                     return true;
                 }
-                else {
-                    return false;
-                }
             }
+            return false;
         }
     }
 
     update(dt) {
+
         let armature: dragonBones.Armature = this.getComponent(dragonBones.ArmatureDisplay).armature();
+        if (this.state != CellingTurretState.Disabled) {
+            if (this.canSeeTarget()) {
+                if (this.state != CellingTurretState.OpenedIdle && this.state != CellingTurretState.Shooting) { this.timeLeft = 0.0; this.activate(); }
+                else {
 
-        if (this.canSeeTarget()) {
-            if (this.state != CellingTurretState.OpenedIdle && this.state != CellingTurretState.Shooting) { this.timeLeft = 0.0; this.activate(); }
-            else {
-                if (this.weapon != null) {
-                    this.state = CellingTurretState.Shooting;
-                    armature.animation.play("shooting");
-                    let angle = Math.atan2(this.target.getPosition().y - this.node.getPosition().y, this.target.getPosition().x - this.node.getPosition().x);
+                    if (this.weapon != null) {
+                        this.state = CellingTurretState.Shooting;
 
-                    this.weapon.Fire(this.node.getPosition(), angle, this.node);
-                }
-            }
-        }
-        else {
-            if (this.state != CellingTurretState.ClosedIdle && this.state != CellingTurretState.Closing) {
-                if (this.state != CellingTurretState.OpenedIdle) {
-                    this.state = CellingTurretState.OpenedIdle;
-                    armature.animation.play("idle_opened");
-                }
-                if (this.deactivateOverTime) {
+                        let angle = Math.atan2(this.target.getPosition().y - this.node.getPosition().y, this.target.getPosition().x - this.node.getPosition().x);
 
-                    this.timeLeft += dt;
+                        armature.animation.play("shooting", 0);
 
-                    if (this.timeLeft >= this.timeBeforeDeactivating) {
-                        this.timeLeft = 0.0;
+                        armature.getBone("bone").offset.rotation = angle;
 
-                        this.deactivate();
+                        this.weapon.Fire(this.node.getPosition(), angle, this.node);
                     }
+                }
+            }
+            else {
+                if (this.state != CellingTurretState.ClosedIdle && this.state != CellingTurretState.Closing) {
+                    if (this.state != CellingTurretState.OpenedIdle) {
+                        this.state = CellingTurretState.OpenedIdle;
+                        armature.animation.play("idle_opened", 0);
+                        armature.getBone("bone").offset.rotation = 0;
+                    }
+                    if (this.deactivateOverTime) {
 
+                        this.timeLeft += dt;
+
+                        if (this.timeLeft >= this.timeBeforeDeactivating) {
+                            this.timeLeft = 0.0;
+
+                            this.deactivate();
+                        }
+
+                    }
                 }
             }
         }
+
         if (this.weapon != null) {
             this.weapon.manualUpdate(dt);
         }
 
-      
+
 
         if (this.state != CellingTurretState.Disabled) {
             if (this.state == CellingTurretState.Opening) {

@@ -116,6 +116,8 @@ export default class Elevator extends cc.Component {
     }
 
     update(dt) {
+
+        
         if (this.movingBack) {
             if (this.node.position.fuzzyEquals(this.startLocation, 1)) {
                 if (!this.arrived) {
@@ -125,6 +127,7 @@ export default class Elevator extends cc.Component {
             }
         }
         else {
+
             if (this.node.position.fuzzyEquals(this.endLocation, 1)) {
                 if (!this.arrived) {
                     this.arrived = true;

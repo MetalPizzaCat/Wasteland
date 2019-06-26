@@ -224,6 +224,7 @@ export default class Weapon extends Item {
             projectile.getComponent(Projectile).damage = this.primaryProjectileData["damage"];
             projectile.getComponent(Projectile).destroyOnTouch = this.primaryProjectileData["destroyOnTouch"];
             projectile.getComponent(Projectile).lifeTime = this.primaryProjectileData["lifeTime"];
+            projectile.getComponent(Projectile).parentNode = parent;
         }
 
         if (projectile.getComponent(cc.RigidBody) != null) {
@@ -258,7 +259,7 @@ export default class Weapon extends Item {
 
     Fire(location: cc.Vec2, rotation: number, parent: cc.Node): boolean {
         if (this.WeaponType == WeaponType.Melee) {
-            if (this.canSecondaryFire()) { this.PrimaryFireMelee(location, rotation, parent); }
+            if (this.canPrimaryFire()) { this.PrimaryFireMelee(location, rotation, parent); }
             else { return false; }
         }
         else if (this.WeaponType == WeaponType.Pistol || this.WeaponType == WeaponType.Rifle || this.WeaponType == WeaponType.Shotgun) {
