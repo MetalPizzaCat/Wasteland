@@ -28,15 +28,21 @@ export default class InventoryOpener extends UsableObject {
                 this.node.getComponent(ObjectWithInventory).otherInventory = node.getComponent(ObjectWithInventory);
                 node.getComponent(ObjectWithInventory).otherInventory = this.node.getComponent(ObjectWithInventory);
                 node.getComponent(ObjectWithInventory).activateInventory();
-                this.node.getComponent(ObjectWithInventory).activateInventory();
+                if (node.getComponent(ObjectWithInventory).otherInventoryNode != null && node.getComponent(ObjectWithInventory).otherSlider!=null) {
+                    this.node.getComponent(ObjectWithInventory).activateAsOtherInv(node.getComponent(ObjectWithInventory).otherInventoryNode ,node.getComponent(ObjectWithInventory).otherSlider);
+                }
+                else {
+                    cc.log("WARNING! Host inventory doesn't have otherInventoryNode and otherSlider. Name: " + node.name);
+                    this.node.getComponent(ObjectWithInventory).inventoryNode.setPosition(this.node.getComponent(ObjectWithInventory).inventoryNode.convertToNodeSpaceAR(node.getPosition()).add(cc.v2(600, 0)));
+                    this.node.getComponent(ObjectWithInventory).sliderNode.setPosition(this.node.getComponent(ObjectWithInventory).sliderNode.convertToNodeSpaceAR(node.getPosition()).add(cc.v2(600, 600)));
 
+                }
 
+            }
 
                 //this.node.getComponent(ObjectWithInventory).inventoryNode.setPosition((cc.v2(300, 0).sub(this.node.getPosition())).add(node.getPosition()));
 
-                this.node.getComponent(ObjectWithInventory).inventoryNode.setPosition(this.node.getComponent(ObjectWithInventory).inventoryNode.convertToNodeSpaceAR(node.getPosition()).add(cc.v2(600, 0)));
-                this.node.getComponent(ObjectWithInventory).sliderNode.setPosition(this.node.getComponent(ObjectWithInventory).sliderNode.convertToNodeSpaceAR(node.getPosition()).add(cc.v2(600, 600)));
-            }
+             
         }
     }
 
