@@ -39,8 +39,8 @@ export default class SoundWithFalloff extends cc.Component {
 
     update(dt) {
         if (this.listenerNode != null && this.soundEmmitingNode != null) {
-            let x: number = -this.soundEmmitingNode.getPosition().x + this.listenerNode.getPosition().x;
-            let y: number = -this.soundEmmitingNode.getPosition().y + this.listenerNode.getPosition().y;
+            let x: number = -this.soundEmmitingNode.convertToWorldSpaceAR(cc.v2(0, 0)).x + this.listenerNode.convertToWorldSpaceAR(cc.v2(0, 0)).x ;
+            let y: number = -this.soundEmmitingNode.convertToWorldSpaceAR(cc.v2(0, 0)).y + this.listenerNode.convertToWorldSpaceAR(cc.v2(0, 0)).y;
             let distance: number = Math.sqrt(x * x + y * y);
             if (distance > this.maxDistance) { this.resultVolume = 0; }
             else if (distance == 0) { this.resultVolume = this.supposedVolume; }
@@ -61,3 +61,6 @@ export default class SoundWithFalloff extends cc.Component {
         }
     }
 }
+
+//let x: number = -this.soundEmmitingNode.getPosition().x + this.listenerNode.getPosition().x;
+//let y: number = -this.soundEmmitingNode.getPosition().y + this.listenerNode.getPosition().y;

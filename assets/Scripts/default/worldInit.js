@@ -35,7 +35,7 @@ cc.Class({
     {
         cc.director.getPhysicsManager().enabled = true;
         cc.director.getPhysicsManager().gravity = cc.v2(0, -900);
-        cc.director.getPhysicsManager().debugDrawFlags = 1;
+        cc.director.getPhysicsManager().debugDrawFlags = 0;
         cc.director.setClearColor(cc.color(0, 0, 0, 0));
     },
 

@@ -33,6 +33,8 @@ export default class Item extends cc.Component {
     dropSoundName: string = "sounds/bottle/itm_bottle_down_01.wav";
 
     displayName: string = "item";
+
+    value: number = 0;
     // LIFE-CYCLE CALLBACKS:
 
     onLoad() {
@@ -46,6 +48,7 @@ export default class Item extends cc.Component {
                         this.weight = itemArray["json"]["items"][i]["weight"];
                         this.imageName = itemArray["json"]["items"][i]["imageName"];
                         this.displayName = itemArray["json"]["items"][i]["displayName"];
+                        this.value = itemArray["json"]["items"][i]["value"];
                     }
                 }
             }
@@ -74,6 +77,7 @@ export default class Item extends cc.Component {
                 this.imageName = data["json"]["items"][i]["imageName"];
                 this.type = data["json"]["items"][i]["type"];
                 this.displayName = data["json"]["items"][i]["displayName"];
+                this.value = data["json"]["items"][i]["value"];
                 //finish 
                 return true;
                 
@@ -96,6 +100,7 @@ export default class Item extends cc.Component {
                         this.imageName = data["json"]["items"][i]["imageName"];
                         this.type = data["json"]["items"][i]["type"];
                         this.displayName = data["json"]["items"][i]["displayName"];
+                        this.value = data["json"]["items"][i]["value"];
                         //finish 
                         result = true;
                         break;

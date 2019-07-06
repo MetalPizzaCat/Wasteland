@@ -1,3 +1,5 @@
+import TimedEvent from "../TimedEvent";
+
 // Learn TypeScript:
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
 //  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/typescript.html
@@ -50,6 +52,8 @@ export default class Cutscene extends cc.Component {
 
         this.node.on('startcutscene', this.cutsceneStart, this);
         this.node.on('endcutscene', this.cutsceneEnd, this);
+
+       
     }
 
     cutsceneStart() {
@@ -59,8 +63,9 @@ export default class Cutscene extends cc.Component {
             this.cutsceneGoing = true;
             this.cameraOrigin = this.cameraNode.getPosition();
 
-            this.cameraNode.setPosition(this.cameraNode.convertToNodeSpaceAR(this.cameraLocations[0].convertToWorldSpaceAR(cc.v2(0, 0))));
-            
+            this.cameraNode.setPosition(this.cameraNode.parent.convertToNodeSpaceAR(this.cameraLocations[0].convertToWorldSpaceAR(cc.v2(0, 0))));
+             
+           
         }
     }
 
@@ -68,9 +73,11 @@ export default class Cutscene extends cc.Component {
         
         if (this.cameraNode != null) {
 
-            
+          
             this.cameraNode.setPosition(this.cameraOrigin);
             this.cutsceneGoing = false;
+
+            if (this.addComponent(TimedEvent) != null) { this.getComponent(TimedEvent).forseToEnd(); }
         }
     }
 

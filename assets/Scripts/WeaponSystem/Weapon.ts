@@ -117,6 +117,14 @@ export default class Weapon extends Item {
         this.primaryReloading = true;
         this.primaryTimeInReload = 0.0;
         this.primaryFireParentNode = parent;
+
+        if (this.weaponSoundDataNode.getComponent(WeaponSoundDataScript) != null) {
+            for (let i: number = 0; i < this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds.length; i++) {
+                if (this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds[i].name == this.itemName) {
+                    cc.audioEngine.play(this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds[i].primaryReloadSound[0], false, 1);
+                }
+            }
+        }
     }
 
     primaryEndReload(parent: cc.Node): void {
@@ -148,6 +156,13 @@ export default class Weapon extends Item {
         this.secondaryReloading = true;
         this.secondaryTimeInReload = 0.0;
         this.secondaryFireParentNode = parent;
+        if (this.weaponSoundDataNode.getComponent(WeaponSoundDataScript) != null) {
+            for (let i: number = 0; i < this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds.length; i++) {
+                if (this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds[i].name == this.itemName) {
+                    cc.audioEngine.play(this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds[i].secondaryReloadSound[0], false, 1);
+                }
+            }
+        }
     }
 
     secondaryEndReload(parent: cc.Node): void {
@@ -198,7 +213,7 @@ export default class Weapon extends Item {
         if (this.weaponSoundDataNode != null) {
             if (this.weaponSoundDataNode.getComponent(WeaponSoundDataScript) != null) {
                 for (let i: number = 0; i < this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds.length; i++) {
-                    if (this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds[i].name = this.itemName) {
+                    if (this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds[i].name == this.itemName) {
                         cc.audioEngine.play(this.weaponSoundDataNode.getComponent(WeaponSoundDataScript).sounds[i].primaryShootSound[0], false, 1);
                     }
                 }
@@ -251,6 +266,7 @@ export default class Weapon extends Item {
 
         projectile.getComponent(cc.RigidBody).applyLinearImpulse(cc.v2(this.primaryProjectileData["speed"] * Math.cos(rotation), this.primaryProjectileData["speed"] * Math.sin(rotation)), parent.position, true);
 
+       
         this.primaryShot = true;
 
         this.PrimaryAmmoLeftInTheClip -= 1;
@@ -281,10 +297,12 @@ export default class Weapon extends Item {
                 this.imageName = data["json"]["items"][i]["imageName"];
                 this.type = data["json"]["items"][i]["type"];
                 this.displayName = data["json"]["items"][i]["displayName"];
+                this.value = data["json"]["items"][i]["value"];
                 this.WeaponType = <WeaponType>data["json"]["items"][i]["weaponType"];
                 this.primaryFireTimeBetweenShots = data["json"]["items"][i]["primaryFireTimeBetweenShots"];
                 this.primaryAmmoType = data["json"]["items"][i]["primaryAmmoType"];
                 this.PrimaryAmmoPerClip = data["json"]["items"][i]["primaryFireAmmoPerClip"];
+
                 if (this.WeaponType != WeaponType.Melee) {
                     this.primaryFireProjectileName = data["json"]["items"][i]["primaryFireProjectileName"];
                 }
@@ -321,6 +339,7 @@ export default class Weapon extends Item {
                         this.imageName = data["json"]["items"][i]["imageName"];
                         this.type = data["json"]["items"][i]["type"];
                         this.displayName = data["json"]["items"][i]["displayName"];
+                        this.value = data["json"]["items"][i]["value"];
                         this.WeaponType = <WeaponType>data["json"]["items"][i]["weaponType"];
                         this.primaryFireTimeBetweenShots = data["json"]["items"][i]["primaryFireTimeBetweenShots"];
                         this.primaryAmmoType = data["json"]["items"][i]["primaryAmmoType"];
@@ -374,6 +393,7 @@ export default class Weapon extends Item {
                         this.imageName = itemArray["json"]["items"][i]["imageName"];
                         this.type = itemArray["json"]["items"][i]["type"];
                         this.displayName = itemArray["json"]["items"][i]["displayName"];
+                        this.value = itemArray["json"]["items"][i]["value"];
                         this.WeaponType = <WeaponType>itemArray["json"]["items"][i]["weaponType"];
                         this.primaryFireTimeBetweenShots = itemArray["json"]["items"][i]["primaryFireTimeBetweenShots"];
                         this.primaryAmmoType = itemArray["json"]["items"][i]["primaryAmmoType"];

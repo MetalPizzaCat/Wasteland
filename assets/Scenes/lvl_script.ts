@@ -1,5 +1,3 @@
-import UsableObject from "./UsableObject";
-
 // Learn TypeScript:
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
 //  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/typescript.html
@@ -12,25 +10,15 @@ import UsableObject from "./UsableObject";
 
 const {ccclass, property} = cc._decorator;
 
+/**Special script for the lvl.scene */
 @ccclass
-export default class Button extends UsableObject {
+export default class lvl_script extends cc.Component {
 
-    @property([cc.Node])
-    usedNodes: [cc.Node] = [null];
-
-    @property({ type: cc.AudioClip })
-    pressSound: cc.AudioClip = null;  
+    
 
     // LIFE-CYCLE CALLBACKS:
 
     // onLoad () {}
-
-    beUsed(node: cc.Node): void {
-        if (this.pressSound != null) { cc.audioEngine.playEffect(this.pressSound, false); }
-        for (let i: number = 0; i < this.usedNodes.length; i++) {
-            this.usedNodes[i].emit('usedbybutton', node);
-        }
-    }
 
     start () {
 

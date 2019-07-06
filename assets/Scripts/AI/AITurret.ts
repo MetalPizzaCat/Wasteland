@@ -236,13 +236,16 @@ export default class AITurret extends cc.Component {
                     if (this.weapon != null) {
                         this.state = CellingTurretState.Shooting;
 
-                        let angle = Math.atan2(this.target.getPosition().y - this.node.getPosition().y, this.target.getPosition().x - this.node.getPosition().x);
+
+                        let angle = Math.atan2(this.target.convertToWorldSpaceAR(cc.v2(0, 0)).y - this.node.convertToWorldSpaceAR(cc.v2(0, 0)).y, this.target.convertToWorldSpaceAR(cc.v2(0, 0)).x - this.node.convertToWorldSpaceAR(cc.v2(0, 0)).x);
 
                         armature.animation.play("shooting", 0);
 
                         armature.getBone("bone").offset.rotation = angle;
 
-                        this.weapon.Fire(this.node.getPosition(), angle, this.node);
+                        this.weapon.Fire(this.node.convertToWorldSpaceAR(cc.v2(0, 0))/*.getPosition()*/, angle, this.node);
+
+
                     }
                 }
             }
