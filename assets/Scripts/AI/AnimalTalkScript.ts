@@ -1,3 +1,5 @@
+import SoundWithFalloff from "../Sound/SoundWithFalloff";
+
 // Learn TypeScript:
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
 //  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/typescript.html
@@ -28,6 +30,7 @@ export default class AnimalTalk extends cc.Component {
     })
     sound: [cc.AudioClip] = [null];
 
+    
 
     @property({
         type: [AnimalTalkData]
@@ -39,6 +42,9 @@ export default class AnimalTalk extends cc.Component {
 
     @property(cc.Node)
     talkLabelBackgroundNode: cc.Node = null;
+
+    @property({ tooltip: "Requires for node to have SoundWithFallof component" })
+    useSoundWithFallof: boolean = false;
 
     currentStringId: number = 0; 
 
@@ -52,8 +58,7 @@ export default class AnimalTalk extends cc.Component {
 
     // LIFE-CYCLE CALLBACKS:
 
-    // onLoad () {}
-
+    
     startTalking() {
         if (this.talkLabelNode != null && this.talkLabelNode.getComponent(cc.Label) != null) {
             this.currentStringId = 0;
@@ -65,7 +70,11 @@ export default class AnimalTalk extends cc.Component {
                 let num: number = Math.floor(Math.random() * (this.sound.length));
                 if (this.sound[num] != null) {
                     this.voiceChannelId = cc.audioEngine.playEffect(this.sound[num], false);
+                    if (this.useSoundWithFallof && this.getComponent(SoundWithFalloff) != null) {
+                        cc.audioEngine.setVolume(this.voiceChannelId, this.getComponent(SoundWithFalloff).resultVolume * cc.audioEngine.getEffectsVolume());
+                    }
                 }
+
             }
         }
     }
@@ -86,8 +95,13 @@ export default class AnimalTalk extends cc.Component {
                     let num: number = Math.floor(Math.random() * (this.sound.length));
                     if (this.sound[num] != null) {
                         this.voiceChannelId = cc.audioEngine.playEffect(this.sound[num], false);
+
                     }
 
+                }
+              
+                if (this.useSoundWithFallof && this.getComponent(SoundWithFalloff) != null) {
+                    cc.audioEngine.setVolume(this.voiceChannelId, this.getComponent(SoundWithFalloff).resultVolume * cc.audioEngine.getEffectsVolume());
                 }
             }
             else {
@@ -112,6 +126,8 @@ export default class AnimalTalk extends cc.Component {
 
     start() {
         this.node.on('starttalk', this.startTalking, this);
+        if (this.useSoundWithFallof && this.node.getComponent(SoundWithFalloff) == null) { cc.log(Error("Script has useSoundWithFallof checked but no suitable component is found. Node: " + this.node)); }
+
        // this.startTalking();
     }
 

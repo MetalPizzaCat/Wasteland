@@ -32,12 +32,15 @@ export default class DoorButton extends UsableObject {
     @property(cc.Node)
     door: cc.Node = null;
 
+    @property({ type: cc.AudioClip })
+    pressSound: cc.AudioClip = null; 
+
     // LIFE-CYCLE CALLBACKS:
 
     // onLoad () {}
     beUsed(node: cc.Node): void {
         if (this.door != null) {
-            cc.log(this.action);
+            if (this.pressSound != null) { cc.audioEngine.playEffect(this.pressSound, false); }
             if (this.door.getComponent(Door) != null) {
 
                 if (this.action == DoorAction.Open) { this.door.getComponent(Door).open(); }
@@ -50,8 +53,8 @@ export default class DoorButton extends UsableObject {
                 }
                 else if (this.action == DoorAction.ToggleOpen) {
                     cc.log(this.door.getComponent(Door).opened);
-                    if (this.door.getComponent(Door).opened) { this.door.getComponent(Door).close(); cc.log("ddd"); }
-                    else { this.door.getComponent(Door).open(); cc.log("ddd"); }
+                    if (this.door.getComponent(Door).opened) { this.door.getComponent(Door).close(); }
+                    else { this.door.getComponent(Door).open(); }
                 }
 
             }
@@ -59,7 +62,7 @@ export default class DoorButton extends UsableObject {
     }
 
     start() {
-        
+        this.node.on('beused', this.beUsed, this);
     }
 
     // update (dt) {}

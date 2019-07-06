@@ -1,6 +1,8 @@
 import Item from "../Item/Item";
 import ItemSoundDataScript from "./ItemSoundData";
 import Weapon from "../WeaponSystem/Weapon";
+import ItemSeller from "./itemSeller";
+import ItemBuyer from "./itemBuyer";
 
 // Learn TypeScript:
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -25,10 +27,13 @@ class ItemData {
     amount: number = 1;
 }
 
-/*
- * used to safely move item between inventories
-  */
+
+
 @ccclass
+/*
+* used to safely move item between inventories
+* DEPRECATED. AVOID USING
+*/
 class InventoryBridge {
     inventoryOne: ObjectWithInventory = null;
 
@@ -47,8 +52,17 @@ class InventoryBridge {
     }
 }
 
+export enum InventoryMovingType {
+    InOnly,
+    OutOnly,
+    Both
+}
+
 @ccclass
 export default class ObjectWithInventory extends cc.Component {
+
+    _inventoryMovingType: InventoryMovingType = InventoryMovingType.Both;
+
     @property([ItemData])
     itemsData: [ItemData] = [null];
 
@@ -74,6 +88,10 @@ export default class ObjectWithInventory extends cc.Component {
     //parent node used to display inventory
     @property(cc.Node)
     inventoryNode: cc.Node = null;
+
+    @property(cc.Node)
+        /* *node for displaying other's inventory*/
+    otherInventoryNode: cc.Node = null;
 
     @property(cc.SpriteFrame)
     itemButtonPressed: cc.SpriteFrame = null;
@@ -129,7 +147,7 @@ export default class ObjectWithInventory extends cc.Component {
 
         }.bind(this));
 
-        if (this.itemSoundDataNode == null || this.itemSoundDataNode.getComponent(ItemSoundDataScript) == null) { alert("There must be itemSoundDataNode with ItemSoundDataScript component"); close(); }
+        if (this.itemSoundDataNode == null || this.itemSoundDataNode.getComponent(ItemSoundDataScript) == null) { alert("There must be itemSoundDataNode with ItemSoundDataScript component Object: " + this.node.name); close(); }
     }
 
     start() {
@@ -454,10 +472,36 @@ export default class ObjectWithInventory extends cc.Component {
     }
 
     itemMoveToTheInventory() {
-        if (this.otherInventory != null && this.sliderNode != null) {
-            this.otherInventory.addItem(this.items[this.itemMoveSelectedItemIndex].itemName, Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
-            this.removeItem(this.items[this.itemMoveSelectedItemIndex].itemName, Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
+        //if (this.otherInventory != null && this.sliderNode != null && !(this.otherInventory instanceof ItemSeller)) {
+        //    if (this.otherInventory instanceof ItemBuyer) {
+        //        this.otherInventory.addItem(this.items[this.itemMoveSelectedItemIndex].itemName, Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
+        //        this.removeItem(this.items[this.itemMoveSelectedItemIndex].itemName, Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
 
+        //        this.addItem((this.otherInventory as ItemBuyer).moneyItemName, (this.items[this.itemMoveSelectedItemIndex] as Item).value);
+        //        this.otherInventory.removeItem((this.otherInventory as ItemBuyer).moneyItemName, (this.items[this.itemMoveSelectedItemIndex] as Item).value);
+        //    }
+        //    else {
+        //        this.otherInventory.addItem(this.items[this.itemMoveSelectedItemIndex].itemName, Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
+        //        this.removeItem(this.items[this.itemMoveSelectedItemIndex].itemName, Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
+        //    }
+        //}
+
+        if (this.otherInventory != null && this.sliderNode != null) {
+
+            if (this.otherInventory._inventoryMovingType == InventoryMovingType.Both) {
+                this.otherInventory.addItem(this.items[this.itemMoveSelectedItemIndex].itemName, Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
+                this.removeItem(this.items[this.itemMoveSelectedItemIndex].itemName, Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
+            }
+            else if (this.otherInventory._inventoryMovingType == InventoryMovingType.InOnly) {
+                //means it is buyer
+
+                this.otherInventory.addItem(this.items[this.itemMoveSelectedItemIndex].itemName, Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
+                this.removeItem(this.items[this.itemMoveSelectedItemIndex].itemName, Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
+
+                this.addItem((this.otherInventory as ItemBuyer).moneyItemName, (this.items[this.itemMoveSelectedItemIndex] as Item).value * Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
+                this.otherInventory.removeItem((this.otherInventory as ItemBuyer).moneyItemName, (this.items[this.itemMoveSelectedItemIndex] as Item).value * Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
+            }
+            else if (this.otherInventory._inventoryMovingType == InventoryMovingType.OutOnly) {}
         }
     }
 

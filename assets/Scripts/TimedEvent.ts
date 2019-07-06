@@ -48,6 +48,20 @@ export default class TimedEvent extends cc.Component {
         this.node.on('endtimer', function () { (this as TimedEvent).timerIsOn = false; (this as TimedEvent).passedTime = 0; }.bind(this));
     }
 
+    forseToEnd() {
+        if (!this.done) {
+            if (this.timerIsOn) {
+                for (let u: number = 0; u < this.nodes.length; u++) {
+                    this.nodes[u].emit(this.onEndEventName);
+
+                    this.passedTime = 0;
+                    this.timerIsOn = false;
+                    if (this.once) { this.done = true; }
+                }
+            }
+        }
+    }
+
     update(dt) {
         if (!this.done) {
             if (this.timerIsOn) {
@@ -57,8 +71,11 @@ export default class TimedEvent extends cc.Component {
                     for (let u: number = 0; u < this.nodes.length; u++) {
                         this.nodes[u].emit(this.onEndEventName);
                     }
-                }    
-                
+                    this.passedTime = 0;
+                    this.timerIsOn = false;
+                    if (this.once) { this.done = true; }
+                }
+
             }
         }
     }

@@ -1,4 +1,5 @@
-import UsableObject from "./UsableObject";
+import ObjectWithInventory, { InventoryMovingType } from "./ObjectWithInventory";
+//import InventoryMovingType from "./ObjectWithInventory";
 
 // Learn TypeScript:
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -13,28 +14,18 @@ import UsableObject from "./UsableObject";
 const {ccclass, property} = cc._decorator;
 
 @ccclass
-export default class Button extends UsableObject {
+export default class ItemBuyer extends ObjectWithInventory {
 
-    @property([cc.Node])
-    usedNodes: [cc.Node] = [null];
+    _inventoryMovingType: InventoryMovingType = InventoryMovingType.InOnly;
 
-    @property({ type: cc.AudioClip })
-    pressSound: cc.AudioClip = null;  
+    @property({ tooltip: "Name of item used as money for this object" })
+    moneyItemName: string = "";
 
     // LIFE-CYCLE CALLBACKS:
 
-    // onLoad () {}
+    onLoad() { cc.log(this); }
 
-    beUsed(node: cc.Node): void {
-        if (this.pressSound != null) { cc.audioEngine.playEffect(this.pressSound, false); }
-        for (let i: number = 0; i < this.usedNodes.length; i++) {
-            this.usedNodes[i].emit('usedbybutton', node);
-        }
-    }
-
-    start () {
-
-    }
+    //start () {}
 
     // update (dt) {}
 }
