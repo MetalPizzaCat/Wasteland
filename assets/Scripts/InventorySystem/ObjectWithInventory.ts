@@ -570,6 +570,14 @@ export default class ObjectWithInventory extends cc.Component {
         }
     }
 
+    onOtherInvSliderSlide() {
+        if (this.otherSlider != null) {
+            if (this.otherInventory != null && this.otherInventory.items[this.otherInventory.itemMoveSelectedItemIndex] != null) {
+                this.otherSlider.getChildByName("item_slider_amount").getComponent(cc.Label).string = (Math.round(this.otherInventory.items[this.otherInventory.itemMoveSelectedItemIndex].amount * (this.otherSlider as cc.Node).getComponent(cc.Slider).progress)).toString();
+            }
+        }
+    }
+
     itemMoveToTheInventory() {
         //if (this.otherInventory != null && this.sliderNode != null && !(this.otherInventory instanceof ItemSeller)) {
         //    if (this.otherInventory instanceof ItemBuyer) {
