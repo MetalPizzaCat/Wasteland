@@ -90,8 +90,11 @@ export default class ObjectWithInventory extends cc.Component {
     inventoryNode: cc.Node = null;
 
     @property(cc.Node)
-        /* *node for displaying other's inventory*/
+    /* *node for displaying other's inventory*/
     otherInventoryNode: cc.Node = null;
+
+    @property(cc.Node)
+    otherSlider: cc.Node = null;
 
     @property(cc.SpriteFrame)
     itemButtonPressed: cc.SpriteFrame = null;
@@ -205,6 +208,7 @@ export default class ObjectWithInventory extends cc.Component {
                 if (this.items[i].itemName == name) {
                     if (this.items[i].amount == amount) {
                         this.items.splice(i, 1)[0];
+                       
                         this.refreshInventoryNode();
 
                         return;
@@ -337,11 +341,106 @@ export default class ObjectWithInventory extends cc.Component {
         }
     }
 
+    activateAsOtherInv(otherInvNode: cc.Node, otherSliderNode: cc.Node) {
+        if (otherInvNode != null && !otherInvNode.active ) {
+            otherInvNode.active = true;
+            otherSliderNode.active = true;
+            this.refreshAsOtherInv(otherInvNode, otherSliderNode);  
+        }
+        
+    }
+
+    refreshAsOtherInv(otherInvNode: cc.Node, otherSliderNode: cc.Node) {
+        cc.log(this.items);
+        otherInvNode.getComponent(cc.ScrollView).content.removeAllChildren();
+        for (var i: number = 0; i < this.items.length; i++) {
+            if (this.items[i] != null) {
+                const index: number = i;
+                otherInvNode.getComponent(cc.ScrollView).content.addChild(new cc.Node(this.items[i].itemName));
+                if (otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName) != null) {
+
+                    let clickEventHandler = new cc.Component.EventHandler();
+                    clickEventHandler.target = this.node; //This node is the node to which your event handler code component belongs
+                    clickEventHandler.component = "ObjectWithInventory";//This is the code file name
+                    clickEventHandler.handler = "itemButtonCallback";
+                    clickEventHandler.customEventData = this.items[i].itemName;
+
+
+
+
+                    otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).addChild(new cc.Node(this.items[i].itemName + "_background"));
+
+
+                    otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).addComponent(cc.Button);
+
+                    otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").addComponent(cc.Sprite);
+
+                    otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").getComponent(cc.Sprite).spriteFrame = this.itemButtonDefault;
+
+                    otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").setPosition(cc.v2(0, 0));
+
+
+                    otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Button).target = otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background");
+
+                    if (this.itemButtonDefault != null) {
+                        otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Button).normalSprite = this.itemButtonDefault;
+                    }
+                    if (this.itemButtonHovered != null) {
+                        otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Button).hoverSprite = this.itemButtonHovered;
+                    }
+                    if (this.itemButtonPressed != null) {
+                        otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Button).pressedSprite = this.itemButtonPressed;
+                    }
+
+                    otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").addComponent(cc.Label);
+
+                   otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").getComponent(cc.Label).horizontalAlign = cc.Label.HorizontalAlign.LEFT;
+                    otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").getComponent(cc.Label).string = this.items[i].displayName + "(" + this.items[i].amount + ")";
+                    otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).setPosition(this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getPosition().x, - i * 35);
+                    otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").getComponent(cc.Label).fontSize = 24;
+                    // cc.log("supposed name " + this.items[i].itemName + " result name " + this.inventoryNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Label).string);
+
+                    otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getComponent(cc.Button).clickEvents.push(clickEventHandler);
+
+                    (otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background") as cc.Node).color = cc.Color.WHITE;
+
+                    otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[i].itemName).getChildByName(this.items[i].itemName + "_background").on('mousedown', function (event) {
+
+
+                        if (this.otherInventory != null) {
+                            if (this.sliderNode != null) {
+                                (this as ObjectWithInventory).itemMoveSelectedItemIndex = index;
+                                otherSliderNode.getChildByName("item_slider_amount").getComponent(cc.Label).string = (Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (otherSliderNode as cc.Node).getComponent(cc.Slider).progress)).toString();
+                                (otherInvNode.getComponent(cc.ScrollView).content.getChildByName(this.items[index].itemName).getChildByName(this.items[index].itemName + "_background") as cc.Node).color = cc.Color.RED;
+                            }
+                            else {
+                                this.addItem(this.items[index].itemName, 1);
+                                this.otherInventory.removeItem(this.items[index].itemName, 1);
+                            }
+                        }                                           
+
+                    }.bind(this, index, otherSliderNode, otherInvNode));
+
+                }
+                else {
+                    cc.log("Failed to add child with name " + this.items[i].itemName);
+                }
+
+            }
+
+            else {
+                //cc.log("item at " + i + " is null");
+            }
+        }
+    }
+
     deactivateInventory() {
         if (this.inventoryNode != null && this.activated) {
             this.inventoryNode.active = false;
             this.activated = false;
             if (this.sliderNode != null) { this.sliderNode.active = false; }
+            if (this.otherSlider != null) { this.otherSlider.active = false; }
+            if (this.otherInventoryNode != null) { this.otherInventoryNode.active = false; }
         }
         if (this.otherInventory != null) { this.otherInventory.otherInventory = null; this.otherInventory.deactivateInventory(); this.otherInventory = null; }
     }
@@ -502,6 +601,20 @@ export default class ObjectWithInventory extends cc.Component {
                 this.otherInventory.removeItem((this.otherInventory as ItemBuyer).moneyItemName, (this.items[this.itemMoveSelectedItemIndex] as Item).value * Math.round(this.items[this.itemMoveSelectedItemIndex].amount * (this.sliderNode as cc.Node).getComponent(cc.Slider).progress));
             }
             else if (this.otherInventory._inventoryMovingType == InventoryMovingType.OutOnly) {}
+        }
+    }
+
+    /**Button using this callback is located in host inventry(the that opened) */
+    otherInvItemMoveToTheInventory() {
+
+        if (this.otherInventory != null && this.otherSlider != null) {
+
+            if (this.otherInventory._inventoryMovingType == InventoryMovingType.Both) {
+                this.addItem(this.otherInventory.items[this.otherInventory.itemMoveSelectedItemIndex].itemName, Math.round(this.otherInventory.items[this.otherInventory.itemMoveSelectedItemIndex].amount * (this.otherSlider as cc.Node).getComponent(cc.Slider).progress));
+                this.otherInventory.removeItem(this.otherInventory.items[this.otherInventory.itemMoveSelectedItemIndex].itemName, Math.round(this.otherInventory.items[this.otherInventory.itemMoveSelectedItemIndex].amount * (this.otherSlider as cc.Node).getComponent(cc.Slider).progress));
+
+                this.otherInventory.refreshAsOtherInv(this.otherInventoryNode, this.otherSlider);
+            }
         }
     }
 
